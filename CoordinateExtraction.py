@@ -44,6 +44,7 @@ def extractCoordinates(hitCoordinatesData):
                 sectorIDs.append(regSlice(line, 12, 0)) # pad to 18 bits
                 nTracks += 1
                 trackWordCount = 0
+                trackCoordinates = []
 
             if trackWordCount >= 2 and trackWordCount <= 4: # pixel hit clusters
                 columnCoord = regSlice(line, 27, 16)
@@ -58,5 +59,5 @@ def extractCoordinates(hitCoordinatesData):
             if trackWordCount == 9: # end of track
                 coordinates.append(trackCoordinates)
 
-    print sectorIDs 
+    print coordinates[0] 
     return (sectorIDs, coordinates)
