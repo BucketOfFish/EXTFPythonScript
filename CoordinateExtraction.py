@@ -39,8 +39,9 @@ def extractCoordinates(hitCoordinatesData):
 
             trackWordCount += 1
 
-            if regSlice(line, 31, 31) == 1: # begin track
-                sectorID.append('000000' + regSlice(12, 0)) # pad to 18 bits
+            if regSlice(line, 31, 31) == '1': # begin track
+                # sectorIDs.append('000000' + regSlice(line, 12, 0)) # pad to 18 bits
+                sectorIDs.append(regSlice(line, 12, 0)) # pad to 18 bits
                 nTracks += 1
                 trackWordCount = 0
 
@@ -57,4 +58,5 @@ def extractCoordinates(hitCoordinatesData):
             if trackWordCount == 9: # end of track
                 coordinates.append(trackCoordinates)
 
+    print sectorIDs 
     return (sectorIDs, coordinates)
