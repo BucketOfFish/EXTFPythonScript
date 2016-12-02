@@ -2,20 +2,21 @@ import numpy as np
 from Utilities import *
 
 # given 64 lines of 32 bits each, this function extracts a vector, a matrix, and other info such as module IDs
-def extractMatrix(matrixConstantsFileLines):
+# called by PythonExtrapolator.py
+def extractMatrix(matrixConstantsData):
 
     # extracted values
     matrix = []
     vector = []
-    emptyID = list('000000000000000000') # some stupid Python nonsense
+    emptyID = list('000000000000000000') # some stupid Python nonsense - strings are immutable
     moduleIDs = [list(emptyID), list(emptyID), list(emptyID), list(emptyID), list(emptyID)]
-    sectorID = list(emptyID) # the fifth element of moduleIDs is the sector ID - will be separated at the end
+    sectorID = [] # the fifth element of moduleIDs is the sector ID - will be separated at the end
     sectorID_8L = []
     connID = []
     nConn = []
 
     # read through each line of the file
-    for lineNumber, line in enumerate(matrixConstantsFileLines, start=1):
+    for lineNumber, line in enumerate(matrixConstantsData, start=1):
 
         # first line is 8L sector ID and conn ID
         if lineNumber == 1:
@@ -47,3 +48,22 @@ def extractMatrix(matrixConstantsFileLines):
         vector.append(matrix.pop(index-1))
     vector = list(reversed(vector))
     matrix = np.array(matrix).reshape(5, 11)
+
+    # return sector ID and matrix
+    return (sectorID, matrix)
+
+def extractMatrices(matrixConstantsData):
+
+    sectorIDs = []
+    matrices = []
+
+    nLines = len(matrixConstantsData)
+    nMatrices = 0
+
+    while (nMatrices+1)*64 <= nLines:
+        sectorID, matrix = extractMatrix(matrixConstantsData[nMatrices*64:nMatrices*64+63])
+        sectorIDs.append(sectorID)
+        matrices.append(matrix)
+        nMatrices += 1
+
+    return (sectorIDs, matrices)
