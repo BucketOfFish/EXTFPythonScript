@@ -20,12 +20,13 @@ def extractMatrix(matrixConstantsData):
 
         # first line is 8L sector ID and conn ID
         if lineNumber == 1:
-            sectorID_8L = regSlice(line, 29, 2)
+            sectorID_8L = int(regSlice(line, 29, 2), 2)
             connID = regSlice(line, 1, 0)
 
         elif lineNumber <= 61:
             # these lines contain constants
-            matrix.append(regSlice(line, 26, 0))
+            matrixConstant = regSlice(line, 26, 0) + '00000'
+            matrix.append(binToFloat32(matrixConstant))
 
             # this line contains n conn
             if lineNumber == 52:
@@ -41,7 +42,7 @@ def extractMatrix(matrixConstantsData):
                 moduleIDs[moduleNumber] = alteredID
 
     # cleaning up
-    moduleIDs = [''.join(ID) for ID in moduleIDs]
+    moduleIDs = [int(''.join(ID), 2) for ID in moduleIDs]
     sectorID = moduleIDs.pop(4)
     vectorIndexes = [1, 13, 25, 37, 49]
     for index in sorted(vectorIndexes, reverse=True):
@@ -49,21 +50,23 @@ def extractMatrix(matrixConstantsData):
     vector = list(reversed(vector))
     matrix = np.array(matrix).reshape(5, 11)
 
-    # return sector ID and matrix
-    return (sectorID, matrix)
+    # return sector ID, vector, and matrix
+    return (sectorID_8L, vector, matrix) # the other sectorID is for TF?
 
 def extractMatrices(matrixConstantsData):
 
     sectorIDs = []
+    vectors = []
     matrices = []
 
     nLines = len(matrixConstantsData)
     nMatrices = 0
 
     while (nMatrices+1)*64 <= nLines:
-        sectorID, matrix = extractMatrix(matrixConstantsData[nMatrices*64:nMatrices*64+63])
+        sectorID, vector, matrix = extractMatrix(matrixConstantsData[nMatrices*64:nMatrices*64+63])
         sectorIDs.append(sectorID)
+        vectors.append(vector)
         matrices.append(matrix)
         nMatrices += 1
-
-    return (sectorIDs, matrices)
+ 
+    return dict(zip(sectorIDs, zip(vectors, matrices))) # dictionary where sector IDs are keys

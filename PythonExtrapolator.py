@@ -18,5 +18,19 @@ if __name__ == "__main__":
     inputCoordinatesData = [hexToBin(hexNumber) for hexNumber in inputCoordinatesData]
 
     # get matrices and track coordinates with sector IDs
-    extractMatrices(matrixConstantsData)
-    extractCoordinates(inputCoordinatesData)
+    matrixValues = extractMatrices(matrixConstantsData)
+    hitCoordinates = extractCoordinates(inputCoordinatesData)
+
+    # for every track, compute the extrapolated coordinates
+    for hitCoordinateValues in hitCoordinates:
+
+        sectorID = hitCoordinateValues[0]
+        coordinates = np.array(hitCoordinateValues[1])
+
+        if sectorID in matrixValues: # if this key is in the dictionary
+            vector = np.array(matrixValues[sectorID][0])
+            matrix = np.array(matrixValues[sectorID][1])
+            print "Track in sector ID", sectorID, "has extrapolated coordinates:", vector + matrix.dot(coordinates)
+
+        else:
+            print "Sector ID", sectorID, "is not in matrix data."
