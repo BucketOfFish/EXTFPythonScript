@@ -1,9 +1,5 @@
 from struct import pack,unpack
 
-# converts hex to binary, with leading zeros intact
-def hexToBin(hexNumber):
-    return bin(int('1'+hexNumber, 16))[3:]
-
 # mimics verilog register index slicing behavior
 def regSlice(reg, sliceIndex1, sliceIndex2):
     regSize = len(reg)
@@ -14,11 +10,17 @@ def setBit(bitString, index, value):
     bitStringSize = len(bitString)
     bitString[bitStringSize-index-1] = value
 
-# converts binary to integer
+# a series of conversion functions
+def hexToBin(hexNumber):
+    return bin(int('1'+hexNumber, 16))[3:]
 def binToInt(binary):
     return int(binary, 2)
-
-# converts binary to 32-bit float
 def binToFloat32(binary):
     integer = binToInt(binary)
     return unpack("f", pack("I", integer))[0]
+def hexToFloat32(hexNumber):
+    binary = hexToBin(hexNumber)
+    return binToFloat32(binary)
+def hexToInt(hexNumber):
+    binary = hexToBin(hexNumber)
+    return binToInt(binary)

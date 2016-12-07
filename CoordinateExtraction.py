@@ -49,8 +49,8 @@ def extractCoordinates(hitCoordinatesData):
             if trackWordCount >= 2 and trackWordCount <= 4: # pixel hit clusters
                 columnCoord = regSlice(line, 27, 16)
                 rowCoord = regSlice(line, 11, 0)
-                trackCoordinates.append(columnCoord)
                 trackCoordinates.append(rowCoord)
+                trackCoordinates.append(columnCoord)
 
             if trackWordCount >= 5 and trackWordCount <= 9: # SCT hit clusters
                 hit1Coord = regSlice(line, 10, 0)
