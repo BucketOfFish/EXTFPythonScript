@@ -2,7 +2,7 @@ import numpy as np
 from Utilities import *
 
 # given aux data lines of 36 bits each, this function extracts hit parameters for tracks
-def extractCoordinates(hitCoordinatesData):
+def extractAUXCoordinates(hitCoordinatesData):
 
     # extracted values
     coordinates = []
@@ -10,7 +10,6 @@ def extractCoordinates(hitCoordinatesData):
     nTracks = 0
 
     # control and header words
-    readingDataFragment = False
     headerCount = -1
     readingDataWords = False
     trackWordCount = -1
@@ -28,11 +27,9 @@ def extractCoordinates(hitCoordinatesData):
             readingDataWords = False
 
         if regSlice(line, 31, 16) == '1011000011110000': # b0f0
-            readingDataFragment = True
             headerCount = 0
 
         if regSlice(line, 31, 16) == '1110000011110000': # e0f0
-            readingDataFragment = False
             headerCount = -1
 
         if readingDataWords:

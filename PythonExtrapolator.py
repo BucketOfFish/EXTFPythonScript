@@ -1,17 +1,34 @@
 import numpy as np
 from math import floor
 from MatrixExtraction import *
-from CoordinateExtraction import *
+from AUXCoordinateExtraction import *
+from DFCoordinateExtraction import *
 from ModuleIDExtraction import *
+from DFHitSSIDCalculator import *
+from AUXExtrapolatedHitsSSIDCalculator import *
+
+def performChecks():
+
+    # crosscheckFileName = 'Data/res_EXPEDCOORDS_T11_v0.txt' # extrapolated coordinates
+    # crosscheckFileName = 'Data/res_SSIDS_T11_v0.txt' # global SSIDs
+    crosscheckFileName = 'Data/testvector_DF11_2event.dat' # DF data
+
+    with open(crosscheckFileName) as crosscheckFile:
+        crosscheckData = [line.strip('\n') for line in crosscheckFile.readlines()]
+
+    # # cross check with "truth" results for extrapolation
+    # for line in crosscheckData:
+        # print line, regSlice(hexToBin(line), 31, 31), regSlice(hexToBin(line), 15, 15), binToInt(regSlice(hexToBin(line), 10, 0))
 
 if __name__ == "__main__":
 
+    # performChecks()
+
+    # data formats explained here: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/FastTrackerHardwareDocumentation
     matrixConstantsFileName = 'Data/EXP_T11_21P.txt'
-    inputCoordinatesFileName = 'Data/tvec_AUX_tower11_2P40T.txt'
+    inputCoordinatesFileName = 'Data/tvec_AUX_tower11_2P40T.txt' # AUX data
     moduleIDDictionaryFileName = 'Data/raw_12LiblHW_32.moduleidmap'
-    inputDFFileName = 'Data/testvector_DF11_2event.dat'
-    crosscheckFileName = 'Data/res_EXPEDCOORDS_T11_v0.txt' # extrapolated coordinates
-    # crosscheckFileName = 'Data/res_SSIDS_T11_v0.txt' # global SSIDs
+    inputDFFileName = 'Data/testvector_DF11_2event.dat' # DF data
 
     # open files and read lines
     with open(matrixConstantsFileName) as matrixConstantsFile:
@@ -20,8 +37,6 @@ if __name__ == "__main__":
         inputCoordinatesData = [line.strip('\n') for line in inputCoordinatesFile.readlines()]
     with open(inputDFFileName) as inputDFFile:
         inputDFData = [line.strip('\n') for line in inputDFFile.readlines()]
-    with open(crosscheckFileName) as crosscheckFile:
-        crosscheckData = [line.strip('\n') for line in crosscheckFile.readlines()]
     with open(moduleIDDictionaryFileName) as moduleIDDictionaryFile:
         moduleIDDictionaryData = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
 
@@ -30,159 +45,21 @@ if __name__ == "__main__":
     inputCoordinatesData = [hexToBin(hexNumber) for hexNumber in inputCoordinatesData]
     inputDFData = [hexToBin(hexNumber) for hexNumber in inputDFData]
 
-    # get matrices and track coordinates with sector IDs
+    # get extrapolation matrices, input track coordinates, DF coordinates, and local-global module ID dictionary, along with additional data
     matrixValues = extractMatrices(matrixConstantsData)
-    hitCoordinates = extractCoordinates(inputCoordinatesData)
+    hitCoordinates = extractAUXCoordinates(inputCoordinatesData)
+    DFCoordinates = extractDFCoordinates(inputDFData)
     localModuleIDDictionary = extractModuleIDDictionary(moduleIDDictionaryData)
 
-    # for every track, compute the extrapolated coordinates
-    for hitCoordinateValues in hitCoordinates:
+    # calculate global SSIDs for DF hits
+    DFGlobalSSIDs = getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary) # returns vector of (SSID, layer)
 
-        sectorID = hitCoordinateValues[0]
-        coordinates = np.array(hitCoordinateValues[1])
+    # for every input track, compute the extrapolated global SSIDs
+    AUXExtrapolatedGlobalSSIDs = getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary) # returns vector of (SSID, layer)
 
-        if sectorID in matrixValues: # if we have matrix, vector, etc. info stored for this sector ID
-
-            vector = np.array(matrixValues[sectorID][0]) # vector and matrix data (60 constants)
-            matrix = np.array(matrixValues[sectorID][1])
-            globalModuleIDs = np.array(matrixValues[sectorID][2]) # global module IDs for SCT and IBL layer hits
-
-            extrapolatedCoordinates = vector + matrix.dot(coordinates) # perform matrix extrapolation - this gives [IBL_phi IBL_eta SCT SCT SCT]
-            localSSIDCoordinates = extrapolatedCoordinates / 16 # first step of local SSID mapping is scaling the extrapolated parameters
-            # keep eta and phi coordinates of IBL separate for now - we need to see if they fall outside the module
-            localSSIDCoordinates[0] = extrapolatedCoordinates[0] / 64 # IBL phi is scaled by 1/64
-            localSSIDCoordinates[1] = extrapolatedCoordinates[1] / (16 * 16.32) # IBL eta is scaled by a different constant
-            localSSIDCoordinates = [int(floor(number)) for number in localSSIDCoordinates] # next, floor - for e.g. -0.5, go to -1
-
-            expandedLocalSSIDs = [] # look at the SSIDs surrounding each of our extrapolated SSIDs - grid of width 42 and height 10
-
-            # add SSIDs surrounding the extrapolated IBL SSID
-            IBLPhi = localSSIDCoordinates[0]
-            IBLEta = localSSIDCoordinates[1]
-            if IBLPhi < -1 or IBLPhi > 42 or IBLEta < -1 or IBLEta > 10: # outside of module by more than one row
-                pass
-            elif IBLPhi == -1 or IBLPhi == 42 or IBLEta == -1 or IBLEta == 10: # outside of module by one row
-                bottomRow = (IBLEta == -1)
-                topRow = (IBLEta == 10)
-                leftRow = (IBLPhi == -1)
-                rightRow = (IBLPhi == 42)
-                if bottomRow and leftRow:
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta+1) * 42))
-                elif bottomRow and rightRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta+1) * 42))
-                elif topRow and leftRow:
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta-1) * 42))
-                elif topRow and rightRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta-1) * 42))
-                elif bottomRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta+1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi + ((IBLEta+1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta+1) * 42))
-                elif topRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta-1) * 42))
-                elif leftRow:
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + (IBLEta * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta+1) * 42))
-                elif rightRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi-1 + (IBLEta * 42))
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta+1) * 42))
-            else: # inside module
-                bottomRow = (IBLEta == 0)
-                topRow = (IBLEta == 9)
-                leftRow = (IBLPhi == 0)
-                rightRow = (IBLPhi == 41)
-                IBLLocalSSID = IBLPhi + (IBLEta * 42) # IBL local SSID is eta times 42, plus phi
-                expandedLocalSSIDs.append(IBLLocalSSID)
-                if bottomRow and leftRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                elif bottomRow and rightRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                elif topRow and leftRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                elif topRow and rightRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
-                elif bottomRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                elif topRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
-                elif leftRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                elif rightRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
-            nSSIDsInGroup = [len(expandedLocalSSIDs)]
-
-            # add SSIDs surrounding the extrapolated SCT SSIDs
-            for SSID in (localSSIDCoordinates[2], localSSIDCoordinates[3], localSSIDCoordinates[4]):
-                if SSID < -1 or SSID > 96: # 96 SCT modules in tower
-                    pass
-                    nSSIDsInGroup.append(0)
-                elif SSID == -1:
-                    expandedLocalSSIDs.append(0)
-                    nSSIDsInGroup.append(1)
-                elif SSID == 96:
-                    expandedLocalSSIDs.append(95)
-                    nSSIDsInGroup.append(1)
-                elif SSID == 0:
-                    expandedLocalSSIDs.append(0)
-                    expandedLocalSSIDs.append(1)
-                    nSSIDsInGroup.append(2)
-                elif SSID == 95:
-                    expandedLocalSSIDs.append(94)
-                    expandedLocalSSIDs.append(95)
-                    nSSIDsInGroup.append(2)
-                else:
-                    expandedLocalSSIDs.append(SSID - 1)
-                    expandedLocalSSIDs.append(SSID)
-                    expandedLocalSSIDs.append(SSID + 1)
-                    nSSIDsInGroup.append(3)
-
-            tower = 11 # our test hits are in tower 11
-            localModuleIDs = [localModuleIDDictionary[(tower, 0, globalModuleIDs[0])]] # use dictionary to find the four local module IDs
-            localModuleIDs.append(localModuleIDDictionary[(tower, 5, globalModuleIDs[1])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 7, globalModuleIDs[2])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 11, globalModuleIDs[3])])
-
-            localModuleIDs = [localModuleIDs[0]] * nSSIDsInGroup[0] + [localModuleIDs[1]] * nSSIDsInGroup[1] + [localModuleIDs[2]] * nSSIDsInGroup[2] + [localModuleIDs[3]] * nSSIDsInGroup[3]
-            expandedGlobalSSIDs = np.array(localModuleIDs) * 96 + np.array(expandedLocalSSIDs) # SCT
-            for i in range(nSSIDsInGroup[0]):
-                expandedGlobalSSIDs[i] = localModuleIDs[i]  * 420 + expandedLocalSSIDs[i] # IBL
-
-            # print "Track in sector ID", sectorID, "has extrapolated coordinates:", extrapolatedCoordinates
-            # print "Track in sector ID", sectorID, "has extrapolated local SSIDs:", localSSIDs
-            # print "Track in sector ID", sectorID, "has local module IDs:", localModuleIDs
-            print "Track in sector ID", sectorID, "has expanded global SSIDs:", expandedGlobalSSIDs
-
+    # check if extrapolated hits are among DF hits
+    for SSID in AUXExtrapolatedGlobalSSIDs:
+        if SSID in DFGlobalSSIDs:
+            print "Extrapolated hit at (global SSID, layer)", SSID, "found in DF hits."
         else:
-            print "Sector ID", sectorID, "is not in matrix data."
-
-    # # cross check with "truth" results for extrapolation
-    # for line in crosscheckData:
-        # print hexToFloat32(line)
+            print "Extrapolated hit at (global SSID, layer)", SSID, "not found."
