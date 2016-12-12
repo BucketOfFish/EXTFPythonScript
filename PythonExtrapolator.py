@@ -1,12 +1,14 @@
 import numpy as np
 from math import floor
-from MatrixExtraction import *
-from AUXCoordinateExtraction import *
-from DFCoordinateExtraction import *
-from ModuleIDExtraction import *
-from DFHitSSIDCalculator import *
-from AUXExtrapolatedHitsSSIDCalculator import *
+from Utilities import *
+import MatrixExtraction
+import AUXCoordinateExtraction
+import DFCoordinateExtraction
+import ModuleIDExtraction
+import DFHitSSIDCalculator
+import AUXExtrapolatedHitsSSIDCalculator
 
+# test code function
 def performChecks():
 
     # crosscheckFileName = 'Data/res_EXPEDCOORDS_T11_v0.txt' # extrapolated coordinates
@@ -21,8 +23,6 @@ def performChecks():
         # print line, regSlice(hexToBin(line), 31, 31), regSlice(hexToBin(line), 15, 15), binToInt(regSlice(hexToBin(line), 10, 0))
 
 if __name__ == "__main__":
-
-    # performChecks()
 
     # data formats explained here: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/FastTrackerHardwareDocumentation
     matrixConstantsFileName = 'Data/EXP_T11_21P.txt'
@@ -46,20 +46,22 @@ if __name__ == "__main__":
     inputDFData = [hexToBin(hexNumber) for hexNumber in inputDFData]
 
     # get extrapolation matrices, input track coordinates, DF coordinates, and local-global module ID dictionary, along with additional data
-    matrixValues = extractMatrices(matrixConstantsData)
-    hitCoordinates = extractAUXCoordinates(inputCoordinatesData)
-    DFCoordinates = extractDFCoordinates(inputDFData)
-    localModuleIDDictionary = extractModuleIDDictionary(moduleIDDictionaryData)
+    matrixValues = MatrixExtraction.extractMatrices(matrixConstantsData)
+    hitCoordinates = AUXCoordinateExtraction.extractAUXCoordinates(inputCoordinatesData)
+    DFCoordinates = DFCoordinateExtraction.extractDFCoordinates(inputDFData)
+    localModuleIDDictionary = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionaryData)
 
     # calculate global SSIDs for DF hits
-    DFGlobalSSIDs = getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary) # returns vector of (SSID, layer)
+    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary) # returns vector of (SSID, layer)
 
     # for every input track, compute the extrapolated global SSIDs
-    AUXExtrapolatedGlobalSSIDs = getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary) # returns vector of (SSID, layer)
+    AUXExtrapolatedGlobalSSIDs = AUXExtrapolatedHitsSSIDCalculator.getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary) # returns vector of (SSID, layer)
 
     # check if extrapolated hits are among DF hits
+    matchedDFHits = []
     for SSID in AUXExtrapolatedGlobalSSIDs:
         if SSID in DFGlobalSSIDs:
+            matchedDFHits.append(SSID)
             print "Extrapolated hit at (global SSID, layer)", SSID, "found in DF hits."
         else:
             print "Extrapolated hit at (global SSID, layer)", SSID, "not found."

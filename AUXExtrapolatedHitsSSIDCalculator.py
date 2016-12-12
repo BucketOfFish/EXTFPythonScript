@@ -113,6 +113,16 @@ def getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDic
                     expandedLocalSSIDs.append(IBLLocalSSID + 42)
                     expandedLocalSSIDs.append(IBLLocalSSID - 42)
                     expandedLocalSSIDs.append(IBLLocalSSID - 43)
+                else:
+                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
+                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
+                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
+                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
+                    expandedLocalSSIDs.append(IBLLocalSSID)
+                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
+                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
+                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
+                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
             nSSIDsInGroup = [len(expandedLocalSSIDs)]
 
             # add SSIDs surrounding the extrapolated SCT SSIDs
