@@ -1,10 +1,12 @@
 from math import floor
 
 # get glocal SSIDs for DF hits
+# return list of (global SSID, layer, coordinates) for hits
 def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary):
 
     globalSSIDs = []
     layers = []
+    allCoordinates = []
 
     for hitCoordinateValues in DFCoordinates:
 
@@ -46,5 +48,6 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary):
 
         globalSSIDs.append(globalSSID)
         layers.append(layer)
+        allCoordinates.append(coordinates)
 
-    return zip(globalSSIDs, layers) # global SSID is apparently not unique across different SCT layers
+    return zip(globalSSIDs, layers, allCoordinates) # global SSID is apparently not unique across different SCT layers

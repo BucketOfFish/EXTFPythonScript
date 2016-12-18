@@ -2,6 +2,7 @@ import numpy as np
 from Utilities import *
 
 # given columns containing tower, layer, global module ID, and local module ID, create a dictionary
+# return in form of dictionary where (tower, layer, global module ID) is the key and local module ID is the value
 def extractModuleIDDictionary(moduleIDDictionaryData):
 
     # extracted values
