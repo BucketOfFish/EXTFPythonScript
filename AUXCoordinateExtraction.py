@@ -2,7 +2,7 @@ import numpy as np
 from Utilities import *
 
 # given aux data lines of 36 bits each, this function extracts hit parameters for tracks
-def extractAUXCoordinates(hitCoordinatesData):
+def extractAUXHits(inputAUXData):
 
     # extracted values
     coordinates = []
@@ -16,7 +16,7 @@ def extractAUXCoordinates(hitCoordinatesData):
     trackCoordinates = []
 
     # read through each line of the file
-    for lineNumber, line in enumerate(hitCoordinatesData, start=1):
+    for lineNumber, line in enumerate(inputAUXData, start=1):
 
         if headerCount >= 0 and headerCount <= 6:
             headerCount += 1
