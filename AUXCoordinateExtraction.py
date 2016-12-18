@@ -55,6 +55,6 @@ def extractAUXCoordinates(hitCoordinatesData):
 
             if trackWordCount == 9: # end of track
                 trackCoordinates = [binToInt(num) for num in trackCoordinates]
-                coordinates.append(trackCoordinates)
+                coordinates.append(trackCoordinates) # 11 coordinates total - first 6 are pixels (row, col), and last 5 are SCT
 
     return zip(sectorIDs, coordinates)

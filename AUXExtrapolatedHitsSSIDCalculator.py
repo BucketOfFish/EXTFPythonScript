@@ -5,7 +5,6 @@ from math import floor
 def getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary):
 
     # returned values
-    layers = []
     globalSSIDs = []
 
     for hitCoordinateValues in hitCoordinates:
@@ -166,8 +165,7 @@ def getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDic
             for i in range(nSSIDsInGroup[0]):
                 expandedGlobalSSIDs[i] = localModuleIDs[i]  * 420 + expandedLocalSSIDs[i] # IBL
 
-            layers += newLayers
-            globalSSIDs += list(expandedGlobalSSIDs)
+            globalSSIDs.append(zip(list(expandedGlobalSSIDs), newLayers))
 
             # print "Track in sector ID", sectorID, "has extrapolated coordinates:", extrapolatedCoordinates
             # print "Track in sector ID", sectorID, "has extrapolated local SSIDs:", localSSIDs
@@ -175,6 +173,7 @@ def getAUXExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDic
             # print "Track in sector ID", sectorID, "has expanded global SSIDs: ", " ".join([hex(i) for i in expandedGlobalSSIDs])
 
         else:
-            print "Sector ID", sectorID, "is not in matrix data."
+            # print "Sector ID", sectorID, "is not in matrix data."
+            globalSSIDs.append([])
 
-    return zip(globalSSIDs, layers)
+    return globalSSIDs # returns an empty list in positions where matrix data does not exist for the sector ID
