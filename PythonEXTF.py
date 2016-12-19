@@ -71,4 +71,4 @@ if __name__ == "__main__":
     TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData) # CHECKPOINT - This module doesn't actually work right now - just copied from ExtrapolatorMatrixExtraction.py
 
     # calculates best track fit from track candidates
-    bestTrack = TrackFitter.fitTracks(trackCandidates, TFConstants)
+    bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
