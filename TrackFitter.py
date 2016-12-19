@@ -29,7 +29,7 @@ def fitTracks(trackCandidates, TFConstants):
         bestTrackParameters = []
         bestFitQualityEstimator = -1
 
-        if nLayers < 11: # CHECKPOINT - not enough layers, but check if 11 is the limit
+        if nLayers < 11: # not enough layers
             pass
         else:
             for trackCandidate in candidateSet:
