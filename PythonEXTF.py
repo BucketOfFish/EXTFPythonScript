@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     extrapolatorConstants_FileName = 'Data/EXP_T11_21P.txt' # matrix and vector constants for extrapolator
     inputAUXData_FileName = 'Data/tvec_AUX_tower11_2P40T.txt' # AUX input data
-    moduleIDDictionary_FileName = 'Data/raw_12LiblHW_32.moduleidmap' # maps between local module ID, tower and sector ID, and gloabl module ID
+    moduleIDDictionary_FileName = 'Data/raw_12LiblHW_32.moduleidmap' # maps between local module ID, tower, layer, and gloabl module ID
 
     # open files and read lines
     with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
