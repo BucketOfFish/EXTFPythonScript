@@ -4,19 +4,30 @@ import numpy as np
 # return in form of [[best track], [best track]...], where [best track] = [] if there are too few layers
 def fitTracks(trackCandidates, TFConstants):
 
-    # x, c, q, S, h, C, t defined as in the paper - with TF_ prefix because I don't like single-character variable names
-    TF_c = np.random.rand(5,16) # CHECKPOINT - extract from TFConstants
-    TF_q = np.random.rand(5,1) # CHECKPOINT - extract from TFConstants
-    TF_S = np.random.rand(11,16) # CHECKPOINT - extract from TFConstants
-    TF_h = np.random.rand(11,1) # CHECKPOINT - extract from TFConstants
-    # TF_c = np.array(matrixValues[sectorID][0])
-    # TF_q = np.array(matrixValues[sectorID][1])
-    # TF_S = np.array(matrixValues[sectorID][2])
-    # TF_h = np.array(matrixValues[sectorID][3])
-
     bestTracks = []
+    lostSectorIDs = []
 
-    for candidateSet in trackCandidates:
+    for trackInfo in trackCandidates:
+
+        candidateSet = trackInfo[0]
+        sectorID = trackInfo[1]
+        if sectorID not in TFConstants.keys():
+            # print "TF constants not found for sector ID", sectorID
+            lostSectorIDs.append(sectorID)
+            bestTracks.append([])
+            continue
+
+        # x, c, q, S, h, C, t defined as in the paper - with TF_ prefix because I don't like single-character variable names
+        TF_S = np.array(TFConstants[sectorID][0])
+        TF_h = np.array(TFConstants[sectorID][1])
+        TF_c = np.array(TFConstants[sectorID][2])
+        TF_q = np.array(TFConstants[sectorID][3])
+        print ""
+        print TF_S.shape, TF_h.shape, TF_c.shape, TF_q.shape
+        # TF_c = np.random.rand(5,16) # CHECKPOINT - extract from TFConstants
+        # TF_q = np.random.rand(5,1) # CHECKPOINT - extract from TFConstants
+        # TF_S = np.random.rand(11,16) # CHECKPOINT - extract from TFConstants
+        # TF_h = np.random.rand(11,1) # CHECKPOINT - extract from TFConstants
 
         nCandidates = len(candidateSet)
         missingIndices = np.where(np.array(candidateSet[0]) == -1)[0]
@@ -51,4 +62,5 @@ def fitTracks(trackCandidates, TFConstants):
 
         bestTracks.append(bestTrackParameters)
 
+    # print list(set(lostSectorIDs))
     return bestTracks

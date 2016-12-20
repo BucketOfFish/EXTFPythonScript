@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 # return all combinations of hit candidates for track fitting
-# return in the form [[track candidates for 8L input], [track candidates]...], where [track candidates] = [[16 hit coords], [16 hit coords]...]
+# return in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords
 def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
 
     # DFGlobalSSIDs contains SSID, layer, and coordinate info - we take just the first two for matching purposes
@@ -21,8 +21,9 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
 
     # combine the 12-layer hit coordinates with layer info
     twelveLayerHits = []
+    sectorIDs = [coord[0] for coord in AUXHits] # sector ID of track
     AUXCoordinates = [coord[1] for coord in AUXHits] # coordinates of original 8-layer hit
-    AUXCoordinates = [[([coord[0], coord[1]], 1), ([coord[2], coord[3]], 2), ([coord[4], coord[5]], 3), (coord[6], 4), (coord[7], 6), (coord[8], 8), (coord[9], 9), (coord[10], 10)] for coord in AUXCoordinates] # organize by layer
+    AUXCoordinates = [[([coord[0], coord[1]], 1), ([coord[2], coord[3]], 2), ([coord[4], coord[5]], 3), (coord[6], 4), (coord[7], 6), (coord[8], 8), (coord[9], 9), (coord[10], 10)] for coord in AUXCoordinates] # organize by layer - for IBL, do row, col
     allCoordinatesInfo = [coord + exCoord for coord, exCoord in zip(AUXCoordinates, DFCoordinates)] # coordinates for all 12 layers
     allCoordinatesInfo = [sorted(coordinates, key = lambda coord: coord[1]) for coordinates in allCoordinatesInfo] # sort coordinate info by layer number
 
@@ -56,4 +57,4 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
                 possibleTracks += newPossibilities
         trackCandidates.append(possibleTracks)
 
-    return trackCandidates
+    return zip(trackCandidates, sectorIDs)

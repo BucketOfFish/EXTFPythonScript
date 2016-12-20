@@ -11,7 +11,6 @@ import DFHitSSIDCalculator
 import TrackCandidatesFinder
 import TFConstantsExtraction
 import TrackFitter
-import NumbersChecker # for printing stuff during debugging
 
 if __name__ == "__main__":
 
@@ -67,8 +66,9 @@ if __name__ == "__main__":
     with open(TFConstants_FileName) as TFConstantsFile:
         TFConstantsData = [line.strip('\n') for line in TFConstantsFile.readlines()]
     TFConstantsData = [hexToBin(hexNumber) for hexNumber in TFConstantsData]
-
-    TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData) # CHECKPOINT - This module doesn't actually work right now - just copied from ExtrapolatorMatrixExtraction.py
+    TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData)
 
     # calculates best track fit from track candidates
     bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
+
+    print bestTracks
