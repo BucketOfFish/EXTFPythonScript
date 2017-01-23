@@ -2,7 +2,7 @@ from math import floor
 
 # get glocal SSIDs for DF hits
 # return list of (global SSID, layer, coordinates) for hits
-def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary):
+def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
 
     globalSSIDs = []
     layers = []
@@ -17,7 +17,6 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary):
         localSSIDCoordinates = []
         localModuleID = -1
         layer = -1
-        tower = 11
         localSSID = -1
 
         if isIBLHit:
@@ -34,12 +33,16 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary):
             IBLEta = localSSIDCoordinates[1]
             localSSID = IBLPhi + (IBLEta * 42)
         else:
-            SCTLayers = [5, 7, 11]
+            SCTLayers = [5, 7, 11] # don't know which layer this module ID is on, so check which one exists in the module map
             for SCTLayer in SCTLayers: # check dictionary for all three SCT layers - global module ID is only on one of them
                 if (tower, SCTLayer, globalModuleID) in localModuleIDDictionary:
                     localModuleID = localModuleIDDictionary[(tower, SCTLayer, globalModuleID)]
                     layer = SCTLayer
             localSSID = localSSIDCoordinates[0]
+
+        if localModuleID == -1:
+            print "Global module ID", globalModuleID, "not found in dictionary"
+            continue
 
         if isIBLHit:
             globalSSID = localModuleID * 420 + localSSID # IBL

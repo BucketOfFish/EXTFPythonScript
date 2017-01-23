@@ -14,13 +14,11 @@ import TrackFitter
 
 if __name__ == "__main__":
 
+    execfile("Options/VivianaTVCheck.py")
+
     #################
     # Extrapolation #
     #################
-
-    extrapolatorConstants_FileName = 'Data/EXP_T11_21P.txt' # matrix and vector constants for extrapolator
-    inputAUXData_FileName = 'Data/tvec_AUX_tower11_2P40T.txt' # AUX input data
-    moduleIDDictionary_FileName = 'Data/raw_12LiblHW_32.moduleidmap' # maps between local module ID, tower, layer, and gloabl module ID
 
     # open files and read lines
     with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
@@ -32,7 +30,10 @@ if __name__ == "__main__":
 
     # convert to binary (easier to work with)
     extrapolatorConstants_Lines = [hexToBin(hexNumber) for hexNumber in extrapolatorConstants_Lines]
-    inputAUXData_Lines = [hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
+    if shiftBitAUX:
+        inputAUXData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputAUXData_Lines]
+    else:
+        inputAUXData_Lines = [hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
 
     # convert input lines to usable data
     extrapolatorConstants = ExtrapolatorConstantsExtraction.extractConstants(extrapolatorConstants_Lines)
@@ -40,20 +41,22 @@ if __name__ == "__main__":
     moduleIDDictionary = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
 
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
-    extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, moduleIDDictionary)
+    extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, tower, moduleIDDictionary)
 
     #################
     # Hits Matching #
     #################
 
-    inputDFData_FileName = 'Data/testvector_DF11_2event.dat' # DF data
     with open(inputDFData_FileName) as inputDFDataFile:
         inputDFData_Lines = [line.strip('\n') for line in inputDFDataFile.readlines()]
-    inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
+    if shiftBitDF:
+        inputDFData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputDFData_Lines]
+    else:
+        inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
 
     # calculate global SSIDs for DF hits
     inputDFData = DFDataExtraction.extractDFData(inputDFData_Lines)
-    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary)
+    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
@@ -62,7 +65,6 @@ if __name__ == "__main__":
     # Track Fitting #
     #################
 
-    TFConstants_FileName = 'Data/TFConstants_15sector.txt' # matrix and vector constants for track fitter
     with open(TFConstants_FileName) as TFConstantsFile:
         TFConstantsData = [line.strip('\n') for line in TFConstantsFile.readlines()]
     TFConstantsData = [hexToBin(hexNumber) for hexNumber in TFConstantsData]
@@ -71,4 +73,7 @@ if __name__ == "__main__":
     # calculates best track fit from track candidates
     bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
 
-    print bestTracks
+    print "\n----------------------------------------"
+    print "Printing parameters for best-fit tracks:"
+    for track in bestTracks:
+        print [round(param, 3) for param in track]

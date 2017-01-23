@@ -11,23 +11,20 @@ def fitTracks(trackCandidates, TFConstants):
 
         candidateSet = trackInfo[0]
         sectorID = trackInfo[1]
+
+        print "Fitting track candidates in sector", sectorID # CHECKPOINT
+
         if sectorID not in TFConstants.keys():
-            # print "TF constants not found for sector ID", sectorID
+            print "Track fitter constants not found for sector ID - fit terminated", sectorID
             lostSectorIDs.append(sectorID)
-            bestTracks.append([])
+            # bestTracks.append([])
             continue
 
         # x, c, q, S, h, C, t defined as in the paper - with TF_ prefix because I don't like single-character variable names
-        TF_S = np.array(TFConstants[sectorID][0])
-        TF_h = np.array(TFConstants[sectorID][1])
-        TF_c = np.array(TFConstants[sectorID][2])
-        TF_q = np.array(TFConstants[sectorID][3])
-        print ""
-        print TF_S.shape, TF_h.shape, TF_c.shape, TF_q.shape
-        # TF_c = np.random.rand(5,16) # CHECKPOINT - extract from TFConstants
-        # TF_q = np.random.rand(5,1) # CHECKPOINT - extract from TFConstants
-        # TF_S = np.random.rand(11,16) # CHECKPOINT - extract from TFConstants
-        # TF_h = np.random.rand(11,1) # CHECKPOINT - extract from TFConstants
+        TF_S = TFConstants[sectorID][0]
+        TF_h = TFConstants[sectorID][1]
+        TF_c = TFConstants[sectorID][2]
+        TF_q = TFConstants[sectorID][3]
 
         nCandidates = len(candidateSet)
         missingIndices = np.where(np.array(candidateSet[0]) == -1)[0]
@@ -41,8 +38,10 @@ def fitTracks(trackCandidates, TFConstants):
         bestFitQualityEstimator = -1
 
         if nLayers < 11: # not enough layers
-            pass
+            print "Not enough layers - fit terminated" # CHECKPOINT
+            continue
         else:
+            print "Fitting..." # CHECKPOINT
             for trackCandidate in candidateSet:
                 TF_x = np.array(trackCandidate)
                 if nLayers < 12: # missing layers
@@ -53,13 +52,17 @@ def fitTracks(trackCandidates, TFConstants):
                     TF_t = - missingTF_S.transpose().dot(TF_h).transpose() - missingTF_S.transpose().dot(measuredTF_S.dot(measuredTF_x))
                     missingTF_x = np.linalg.inv(TF_C).dot(TF_t.transpose())
                     for index, xVal in enumerate(missingTF_x):
-                        TF_x[missingIndices[index]] = xVal[0]
+                        if isinstance(xVal, list):
+                            TF_x[missingIndices[index]] = xVal[0]
+                        else:
+                            TF_x[missingIndices[index]] = xVal
                 TF_p = TF_c.dot(np.array(TF_x)[np.newaxis].transpose()) + TF_q # so much work just to transpose a vector
                 fitQualityEstimator = np.linalg.norm(TF_S.dot(TF_x) + TF_h)
             if bestFitQualityEstimator == -1 or fitQualityEstimator < bestFitQualityEstimator:
                 bestFitQualityEstimator = fitQualityEstimator
                 bestTrackParameters = np.ndarray.tolist(TF_p.transpose())[0]
 
+        print "Best track parameters were", [round(param, 3) for param in bestTrackParameters]
         bestTracks.append(bestTrackParameters)
 
     # print list(set(lostSectorIDs))

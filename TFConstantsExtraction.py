@@ -1,27 +1,27 @@
 import numpy as np
 from Utilities import *
 
-# given 384 lines of 32 bits each, this function extracts all the track fitter constants (as well as inverse C matrices)
-# the return form is a dictionary with sector IDs as keys, and values as (S matrix, h vector, c matrix, q vector, inverted C matrices)
+# for each sector ID, we have 384 lines of length 32 bits each, and these 384 lines are split into 6 blocks (with block transfer numbers from 0-5)
+# this function extracts data and returns in a dictionary with sector IDs as keys, and values as (S matrix, h vector, c mat., q vec., inverted C mat.)
 # the inverted C matrices are [[matrix for missing layer 0], [ML1]...]
 def extractOneSetOfConstants(constants_Lines):
 
-    # extracted values - some dumb coding here, but I just want to get this done
-    sectorID = []
-    SMatrix = []
-    hVector = []
-    cMatrix = []
-    qVector = []
-    invCMatrices = [np.zeros((2,2)), np.zeros((2,2)), np.zeros((2,2)), np.zeros((2,2)), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1)]
+    # extracted values
+    sectorID = [] # I think this function should only get one sector ID actually, but I coded this really fast
+    SMatrix = [] # chi2 calculation matrix
+    hVector = [] # chi2 additive vector
+    cMatrix = [] # calculation matrix for (d0, z0, cot[theta], phi0, curv)
+    qVector = [] # additive vector for (d0, z0, cot[theta], phi0, curv)
+    invCMatrices = [np.zeros((2,2)), np.zeros((2,2)), np.zeros((2,2)), np.zeros((2,2)), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1), np.zeros(1)] # inverse C matrices
 
-    # extract one block at a time
+    # extract one block (cooresponding to a block transfer number) at a time
     nLines = len(constants_Lines)
     blockN = 0
-    placeholderVector = [] # for use in filling matrices, one constant at a time
+    placeholderVector = [] # for use in filling matrices, one line at a time
 
     while blockN < 6:
 
-        blockLines = constants_Lines[blockN*64:blockN*64+63]
+        blockLines = constants_Lines[blockN*64:blockN*64+63] # read one block at a time
 
         # read through each line of the block
         for lineNumber, line in enumerate(blockLines, start=1):
@@ -29,15 +29,19 @@ def extractOneSetOfConstants(constants_Lines):
             # first line is sector ID and block transfer number
             if lineNumber == 1:
                 sectorID = int(regSlice(line, 19, 4), 2)
-                # blockNCheck = int(regSlice(line, 3, 0), 2)
-                # print blockN == blockNCheck
+                # blockTransferN = int(regSlice(line, 3, 0), 2) # CHECKPOINT
 
             else:
-                constant = binToFloat32(line)
-                subBlock = (lineNumber-3) / 20
-                subLineNumber = (lineNumber-3) % 20
+                constant = binToFloat32(line[5:] + "00000", readingTFConsts=True) # strip off the first bits and put them at the end - just dumb formatting
+                subBlock = (lineNumber-3) / 20 # each block has three subblocks (except for the last block, which only has one)
+                subLineNumber = (lineNumber-3) % 20 # to tell which line we're on in the subblock
 
-                if blockN == 5 and subBlock >= 1: continue
+                if subBlock >= 3: continue # these are blank lines
+                if blockN == 5 and subBlock >= 1: continue # these too
+
+                ############################################
+                # oh boy, fill those matrices and vectors! #
+                ############################################
 
                 # inverse C constants depend on block number - when only one constant is needed, the first line is blank:
                 # 0 - missing layer 0 C11, C12 - ML0 C21, C22 - ML1 C11 C12
@@ -46,6 +50,7 @@ def extractOneSetOfConstants(constants_Lines):
                 # 3 - ML5 - ML6 - ML7
                 # 4 - ML8 - ML9 - ML10
                 # 5 - ML11
+
                 if subLineNumber == 0: # inverse C constants
                     if blockN == 0:
                         if subBlock == 0:
@@ -66,6 +71,7 @@ def extractOneSetOfConstants(constants_Lines):
                             invCMatrices[3][0,0] = constant
                         elif subBlock == 1:
                             invCMatrices[3][1,0] = constant
+
                 elif subLineNumber == 1: # inverse C constants
                     if blockN == 0:
                         if subBlock == 0:
@@ -115,29 +121,30 @@ def extractOneSetOfConstants(constants_Lines):
                 elif subLineNumber >= 3 and subLineNumber <= 18: # matrix constants
                     if subLineNumber == 3 : placeholderVector = [constant]
                     else: placeholderVector.insert(0, constant)
-                    if blockN >=0 and blockN <= 3 and not (blockN == 3 and subBlock == 2): # chi^2 vector
-                        SMatrix.append(placeholderVector)
-                    else: # track parameters vector (d0, z0, cot[theta], phi0, curv)
-                        cMatrix.append(placeholderVector)
+                    if subLineNumber == 18:
+                        if blockN >=0 and blockN <= 3 and not (blockN == 3 and subBlock == 2): # chi^2 matrix
+                            SMatrix.append(placeholderVector)
+                        else: # track parameters matrix (d0, z0, cot[theta], phi0, curv)
+                            cMatrix.append(placeholderVector)
+
+                ############################################
+                # oh boy, fill those matrices and vectors! #
+                ############################################
 
         blockN += 1
 
     # return constants
-    return (sectorID, SMatrix, hVector, cMatrix, qVector, invCMatrices)
+    return (sectorID, np.array(SMatrix), np.array(hVector), np.array(cMatrix), np.array(qVector), invCMatrices)
 
 def extractConstants(constants_Lines):
 
-    sectorIDs = []
-    SMatrices = []
-    hVectors = []
-    cMatrices = []
-    qVectors = []
-    allInvCMatrices = []
+    sectorIDs = []; SMatrices = []; hVectors = []; cMatrices = []; qVectors = []; allInvCMatrices = []
 
     nLines = len(constants_Lines)
     nSectors = 0
     sectorSize = 384
 
+    # every 384 lines of TF constants file contains info for one sector ID
     while (nSectors+1)*sectorSize <= nLines:
         sectorID, SMatrix, hVector, cMatrix, qVector, invCMatrices = extractOneSetOfConstants(constants_Lines[nSectors*sectorSize:(nSectors+1)*sectorSize-1])
         sectorIDs.append(sectorID)

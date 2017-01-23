@@ -25,7 +25,7 @@ def extractOneSetOfConstants(extrapolatorConstants_Lines):
 
         elif lineNumber <= 61:
             # these lines contain constants
-            matrixConstant = regSlice(line, 26, 0) + '00000'
+            matrixConstant = regSlice(line, 26, 0) + '00000' # strip off the first bits and put them at the end - just dumb formatting
             matrix.append(binToFloat32(matrixConstant))
 
             # this line contains n conn

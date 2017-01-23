@@ -4,7 +4,7 @@ from math import floor
 # for every track, compute the extrapolated global SSIDs (expanded to one module on any side)
 # returns a list of lists, such as [[track 1 extr.], [track 2 extr.]...]
 # for each track, the list is composed of (global SSID, layer), such as [(2412, 0), (2462, 0)... (2111, 7)...]
-def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary):
+def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleIDDictionary):
 
     # returned values
     globalSSIDs = []
@@ -155,7 +155,6 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictio
             # End stupid code #
             ###################
 
-            tower = 11 # our test hits are in tower 11
             localModuleIDs = [localModuleIDDictionary[(tower, 0, globalModuleIDs[0])]] # use dictionary to find the four local module IDs
             localModuleIDs.append(localModuleIDDictionary[(tower, 5, globalModuleIDs[1])])
             localModuleIDs.append(localModuleIDDictionary[(tower, 7, globalModuleIDs[2])])

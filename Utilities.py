@@ -25,5 +25,12 @@ def binToInt(binary):
 def binToHex(binary):
     return hex(int(binary, 2))
 def binToFloat32(binary):
+    # IEEE-754, but with the first 5 bits removed for some reason when reading TF consts - just following what Markus has in the documentation spreadsheet
     integer = binToInt(binary)
     return unpack("f", pack("I", integer))[0]
+
+# move the first bit of a hex string to the back, or vice versa
+def shiftFrontToBack(hexNumber):
+    return hexNumber[1:]+hexNumber[0]
+def shiftBackToFront(hexNumber):
+    return hexNumber[8]+hexNumber[:8] # this is hard-coded, because sometimes there's whitespace at the end of a line, ugh
