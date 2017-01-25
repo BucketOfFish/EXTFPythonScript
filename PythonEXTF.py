@@ -74,6 +74,6 @@ if __name__ == "__main__":
     bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
 
     print "\n----------------------------------------"
-    print "Printing parameters for best-fit tracks:"
+    print "Printing chi2 values and parameters for best-fit tracks:"
     for track in bestTracks:
-        print [round(param, 3) for param in track]
+        print track[0], ",", [round(param, 3) for param in track[1]]

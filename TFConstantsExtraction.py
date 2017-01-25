@@ -32,7 +32,8 @@ def extractOneSetOfConstants(constants_Lines):
                 # blockTransferN = int(regSlice(line, 3, 0), 2) # CHECKPOINT
 
             else:
-                constant = binToFloat32(line[5:] + "00000", readingTFConsts=True) # strip off the first bits and put them at the end - just dumb formatting
+                constant = binToFloat32(line[5:] + "00000") # strip off the first bits and put them at the end - just dumb formatting for changing from 27-bit hex to 32-bit hex
+
                 subBlock = (lineNumber-3) / 20 # each block has three subblocks (except for the last block, which only has one)
                 subLineNumber = (lineNumber-3) % 20 # to tell which line we're on in the subblock
 

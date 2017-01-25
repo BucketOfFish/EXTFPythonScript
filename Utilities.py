@@ -11,7 +11,7 @@ def setBit(bitString, index, value):
     bitStringSize = len(bitString)
     bitString[bitStringSize-index-1] = value
 
-# a series of conversion functions
+# a series of conversion functions - all hex convertions assume 32-bit hex
 def hexToBin(hexNumber):
     return bin(int('1'+hexNumber, 16))[3:]
 def hexToInt(hexNumber):
