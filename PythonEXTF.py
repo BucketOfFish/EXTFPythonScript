@@ -14,7 +14,7 @@ import TrackFitter
 
 if __name__ == "__main__":
 
-    execfile("Options/VivianaTVCheck.py")
+    execfile("Options/DefaultOptions.py")
 
     #################
     # Extrapolation #
@@ -61,19 +61,23 @@ if __name__ == "__main__":
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
 
+    print "Track candidates in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords"
+    for candidate in trackCandidates:
+        print candidate 
+
     #################
     # Track Fitting #
     #################
 
-    with open(TFConstants_FileName) as TFConstantsFile:
-        TFConstantsData = [line.strip('\n') for line in TFConstantsFile.readlines()]
-    TFConstantsData = [hexToBin(hexNumber) for hexNumber in TFConstantsData]
-    TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData)
+    # with open(TFConstants_FileName) as TFConstantsFile:
+        # TFConstantsData = [line.strip('\n') for line in TFConstantsFile.readlines()]
+    # TFConstantsData = [hexToBin(hexNumber) for hexNumber in TFConstantsData]
+    # TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData)
 
-    # calculates best track fit from track candidates
-    bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
+    # # calculates best track fit from track candidates
+    # bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
 
-    print "\n----------------------------------------"
-    print "Printing chi2 values and parameters for best-fit tracks:"
-    for track in bestTracks:
-        print track[0], ",", [round(param, 3) for param in track[1]]
+    # print "\n----------------------------------------"
+    # print "Printing chi2 values and parameters for best-fit tracks:"
+    # for track in bestTracks:
+        # print track[0], ",", [round(param, 3) for param in track[1]]

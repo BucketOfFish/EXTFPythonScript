@@ -1,2 +1,4 @@
 Use python 2
 PythonEXTF.py is the entry point.
+On the first line of PythonEXTF.py, you have a line saying "execfile("<blah>.py")"
+In <blah>.py, update the constants files as needed.
