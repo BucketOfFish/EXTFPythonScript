@@ -169,9 +169,11 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleI
             globalSSIDs.append(zip(list(expandedGlobalSSIDs), newLayers))
 
             # print "Track in sector ID", sectorID, "has extrapolated coordinates:", extrapolatedCoordinates
-            # print "Track in sector ID", sectorID, "has extrapolated local SSIDs:", localSSIDs
+            # print "Track in sector ID", sectorID, "has extrapolated local SSIDs:", expandedLocalSSIDs
+            # print "Track in sector ID", sectorID, "has global module IDs:", globalModuleIDs
             # print "Track in sector ID", sectorID, "has local module IDs:", localModuleIDs
             # print "Track in sector ID", sectorID, "has expanded global SSIDs: ", " ".join([hex(i) for i in expandedGlobalSSIDs])
+            # print "Track in sector ID", sectorID, "has expanded global SSIDs:", expandedGlobalSSIDs
 
         else:
             # print "Sector ID", sectorID, "is not in matrix data."

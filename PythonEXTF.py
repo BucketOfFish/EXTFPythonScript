@@ -14,7 +14,7 @@ import TrackFitter
 
 if __name__ == "__main__":
 
-    execfile("Options/DefaultOptions.py")
+    execfile("Options/Stream32_Tower22_1Event.py")
 
     #################
     # Extrapolation #

@@ -15,8 +15,8 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
         # check if extrapolated hits are among DF hits
             for index, DFSSID in enumerate(DFSSIDsToMatch):
                 if SSID == DFSSID:
-                    matchedDFInfo = DFGlobalSSIDs[index]
-                    matchedCoordinates.append((matchedDFInfo[2], matchedDFInfo[1])) # convert DF SSIDs back into coordinates
+                    matchedDFInfo = DFGlobalSSIDs[index] # (SSID, layer, [coordinates])
+                    matchedCoordinates.append((matchedDFInfo[2], matchedDFInfo[1])) # DF ([coordinates], layer)
         DFCoordinates.append(matchedCoordinates)
 
     # combine the 12-layer hit coordinates with layer info
@@ -24,6 +24,9 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
     sectorIDs = [coord[0] for coord in AUXHits] # sector ID of track
     AUXCoordinates = [coord[1] for coord in AUXHits] # coordinates of original 8-layer hit
     AUXCoordinates = [[([coord[0], coord[1]], 1), ([coord[2], coord[3]], 2), ([coord[4], coord[5]], 3), (coord[6], 4), (coord[7], 6), (coord[8], 8), (coord[9], 9), (coord[10], 10)] for coord in AUXCoordinates] # organize by layer - for IBL, do row, col
+    for AUX, DF in zip (AUXCoordinates, DFCoordinates):
+        print "Original AUX track is", AUX
+        print "Extrapolated DF hits are", DF
     allCoordinatesInfo = [coord + exCoord for coord, exCoord in zip(AUXCoordinates, DFCoordinates)] # coordinates for all 12 layers
     allCoordinatesInfo = [sorted(coordinates, key = lambda coord: coord[1]) for coordinates in allCoordinatesInfo] # sort coordinate info by layer number
 

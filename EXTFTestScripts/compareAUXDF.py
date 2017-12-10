@@ -1,12 +1,15 @@
 from Utilities import binToInt, binToHex, regSlice
+from __future__ import print_function
 
 def readAUX(AUXTrack):
+    AUXTrack = pow(2,320) + AUXTrack
     binTrack = bin(AUXTrack)[len(bin(AUXTrack))-320:]
-    for i in range(10):
+    for i in range(8):
         word = binTrack[i*32:(i+1)*32]
         coord1 = binToInt(regSlice(word, 11, 0))
         coord2 = binToInt(regSlice(word, 27, 16))
-        print "Hit", coord1, coord2
+        print("("+str(coord1)+", "+str(coord2)+")", end='')
+    print("")
 
 def readDF(DFHit):
     binHit = bin(DFHit)[len(bin(DFHit))-29:]

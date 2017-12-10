@@ -13,6 +13,7 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         globalModuleID = hitCoordinateValues[0]
         coordinates = hitCoordinateValues[1]
         isIBLHit = (len(coordinates) == 2) # are these IBL or SCT coordinates
+        # print "Coordinates:", coordinates
 
         localSSIDCoordinates = []
         localModuleID = -1
@@ -25,7 +26,9 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         else:
             localSSIDCoordinates = [coordinates[0] / 16.0] # first step of local SSID mapping is scaling the extrapolated parameters
         localSSIDCoordinates = [int(floor(number)) for number in localSSIDCoordinates] # next, floor - for e.g. -0.5, go to -1
+        # print "Local SSID Coordinates:", localSSIDCoordinates
 
+        # tower=0
         if isIBLHit:
             localModuleID = localModuleIDDictionary[(tower, 0, globalModuleID)] # use dictionary to find the local module ID
             layer = 0
@@ -43,6 +46,7 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         if localModuleID == -1:
             print "Global module ID", globalModuleID, "not found in dictionary"
             continue
+        # print "Local module ID and SSID:", localModuleID, localSSID
 
         if isIBLHit:
             globalSSID = localModuleID * 420 + localSSID # IBL
@@ -52,5 +56,6 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         globalSSIDs.append(globalSSID)
         layers.append(layer)
         allCoordinates.append(coordinates)
+        # print "Global SSID:", globalSSID
 
     return zip(globalSSIDs, layers, allCoordinates) # global SSID is apparently not unique across different SCT layers
