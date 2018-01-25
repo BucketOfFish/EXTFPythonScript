@@ -26,6 +26,7 @@ def extractAUXData(inputAUXData_Lines):
 
         if regSlice(line, 31, 16) == '1110000011011010': # e0da
             readingDataWords = False
+            yield zip(sectorIDs, coordinates) # return one event
 
         if regSlice(line, 31, 16) == '1011000011110000': # b0f0
             headerCount = 0
@@ -58,5 +59,3 @@ def extractAUXData(inputAUXData_Lines):
             if trackWordCount == 9: # end of track
                 trackCoordinates = [binToInt(num) for num in trackCoordinates]
                 coordinates.append(trackCoordinates) # 11 coordinates total - first 6 are pixels (row, col), and last 5 are SCT
-
-    return zip(sectorIDs, coordinates)

@@ -12,34 +12,48 @@ import TrackCandidatesFinder
 import TFConstantsExtraction
 import TrackFitter
 
-if __name__ == "__main__":
+####################################################################################################
+# Open files, read lines, convert to binary, then parse
+####################################################################################################
 
-    # execfile("Options/Stream3_Tower22_1Event.py")
-    execfile("Options/Stream3_Tower22_1Event_noLoop.py")
+execfile("Options/Stream3_Tower22_1Event.py")
+
+# extrapolation constants
+with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
+    extrapolatorConstants_Lines = [line.strip('\n') for line in extrapolatorConstantsFile.readlines()]
+extrapolatorConstants_Lines = [hexToBin(hexNumber) for hexNumber in extrapolatorConstants_Lines]
+extrapolatorConstants = ExtrapolatorConstantsExtraction.extractConstants(extrapolatorConstants_Lines)
+
+# local-global module ID dictionary
+with open(moduleIDDictionary_FileName) as moduleIDDictionaryFile:
+    moduleIDDictionary_Lines = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
+moduleIDDictionary = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
+
+# AUX stream
+with open(inputAUXData_FileName) as inputAUXDataFile:
+    inputAUXData_Lines = [line.strip('\n') for line in inputAUXDataFile.readlines()]
+if shiftBitAUX:
+    inputAUXData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputAUXData_Lines]
+else:
+    inputAUXData_Lines = [hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
+AUXDataEvents = AUXDataExtraction.extractAUXData(inputAUXData_Lines) # 8 layer hit coordinates
+
+# DF stream
+with open(inputDFData_FileName) as inputDFDataFile:
+    inputDFData_Lines = [line.strip('\n') for line in inputDFDataFile.readlines()]
+if shiftBitDF:
+    inputDFData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputDFData_Lines]
+else:
+    inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
+DFDataEvents = DFDataExtraction.extractDFData(inputDFData_Lines)
+
+####################################################################################################
+
+def process_one_event(inputAUXData, inputDFData):
 
     #################
     # Extrapolation #
     #################
-
-    # open files and read lines
-    with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
-        extrapolatorConstants_Lines = [line.strip('\n') for line in extrapolatorConstantsFile.readlines()]
-    with open(inputAUXData_FileName) as inputAUXDataFile:
-        inputAUXData_Lines = [line.strip('\n') for line in inputAUXDataFile.readlines()]
-    with open(moduleIDDictionary_FileName) as moduleIDDictionaryFile:
-        moduleIDDictionary_Lines = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
-
-    # convert to binary (easier to work with)
-    extrapolatorConstants_Lines = [hexToBin(hexNumber) for hexNumber in extrapolatorConstants_Lines]
-    if shiftBitAUX:
-        inputAUXData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputAUXData_Lines]
-    else:
-        inputAUXData_Lines = [hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
-
-    # convert input lines to usable data
-    extrapolatorConstants = ExtrapolatorConstantsExtraction.extractConstants(extrapolatorConstants_Lines)
-    inputAUXData = AUXDataExtraction.extractAUXData(inputAUXData_Lines) # 8 layer hit coordinates
-    moduleIDDictionary = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
 
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
     extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, tower, moduleIDDictionary)
@@ -48,15 +62,7 @@ if __name__ == "__main__":
     # Hits Matching #
     #################
 
-    with open(inputDFData_FileName) as inputDFDataFile:
-        inputDFData_Lines = [line.strip('\n') for line in inputDFDataFile.readlines()]
-    if shiftBitDF:
-        inputDFData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputDFData_Lines]
-    else:
-        inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
-
-    # calculate global SSIDs for DF hits
-    inputDFData = DFDataExtraction.extractDFData(inputDFData_Lines)
+    # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
     DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
@@ -82,3 +88,11 @@ if __name__ == "__main__":
     # print "Printing chi2 values and parameters for best-fit tracks:"
     # for track in bestTracks:
         # print track[0], ",", [round(param, 3) for param in track[1]]
+
+####################################################################################################
+
+if __name__ == "__main__":
+
+    for (inputAUXData, inputDFData) in zip(AUXDataEvents, DFDataEvents):
+        process_one_event(inputAUXData, inputDFData)
+        raw_input("Press Enter to continue...")

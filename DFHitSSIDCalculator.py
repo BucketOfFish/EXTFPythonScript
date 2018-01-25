@@ -13,7 +13,6 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         globalModuleID = hitCoordinateValues[0]
         coordinates = hitCoordinateValues[1]
         isIBLHit = (len(coordinates) == 2) # are these IBL or SCT coordinates
-        # print "Coordinates:", coordinates
 
         localSSIDCoordinates = []
         localModuleID = -1
@@ -45,7 +44,7 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
             localSSID = localSSIDCoordinates[0]
 
         if localModuleID == -1:
-            print "Global module ID", globalModuleID, "not found in dictionary"
+            # print "Global module ID", globalModuleID, "not found in dictionary"
             continue
         # print "Local module ID and SSID:", localModuleID, localSSID
 
@@ -54,9 +53,10 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         else:
             globalSSID = localModuleID * 96 + localSSID # SCT
 
-        globalSSIDs.append(globalSSID)
-        layers.append(layer)
-        allCoordinates.append(coordinates)
-        # print "Global SSID:", globalSSID
+        if globalSSID != 0: # temporary fix - DF is apparently sending us a lot of hits with SSID=0
+            globalSSIDs.append(globalSSID)
+            layers.append(layer)
+            allCoordinates.append(coordinates)
+            # print "Global SSID:", globalSSID
 
     return zip(globalSSIDs, layers, allCoordinates) # global SSID is apparently not unique across different SCT layers

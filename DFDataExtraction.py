@@ -26,6 +26,7 @@ def extractDFData(hitCoordinatesData):
 
         if regSlice(line, 31, 16) == '1110000011011010': # e0da
             readingDataWords = False
+            yield zip(globalModuleIDs, coordinates) # return one event
 
         if regSlice(line, 31, 16) == '1011000011110000': # b0f0
             headerCount = 0
@@ -62,5 +63,3 @@ def extractDFData(hitCoordinatesData):
                         coordinates.append([hit1])
                         globalModuleIDs.append(currentModuleID)
                         coordinates.append([hit2])
-
-    return zip(globalModuleIDs, coordinates)
