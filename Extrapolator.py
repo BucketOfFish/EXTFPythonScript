@@ -176,7 +176,7 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleI
             # print "Track in sector ID", sectorID, "has expanded global SSIDs:", expandedGlobalSSIDs
 
         else:
-            # print "Sector ID", sectorID, "is not in matrix data."
+            print "Sector ID", sectorID, "is not in matrix data."
             globalSSIDs.append([])
 
     return globalSSIDs

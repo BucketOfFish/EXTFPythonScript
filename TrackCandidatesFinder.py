@@ -2,6 +2,7 @@ from collections import defaultdict
 
 # return all combinations of hit candidates for track fitting
 # return in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords
+# removing tracks with more than 1 missing layer
 def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
 
     # DFGlobalSSIDs contains SSID, layer, and coordinate info - we take just the first two for matching purposes
@@ -24,9 +25,9 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
     sectorIDs = [coord[0] for coord in AUXHits] # sector ID of track
     AUXCoordinates = [coord[1] for coord in AUXHits] # coordinates of original 8-layer hit
     AUXCoordinates = [[([coord[0], coord[1]], 1), ([coord[2], coord[3]], 2), ([coord[4], coord[5]], 3), (coord[6], 4), (coord[7], 6), (coord[8], 8), (coord[9], 9), (coord[10], 10)] for coord in AUXCoordinates] # organize by layer - for IBL, do row, col
-    for AUX, DF in zip (AUXCoordinates, DFCoordinates):
-        print "Original AUX track is", AUX
-        print "Extrapolated DF hits are", DF
+    # for AUX, DF in zip (AUXCoordinates, DFCoordinates):
+        # print "Original AUX track is", AUX
+        # print "Extrapolated DF hits are", DF
     allCoordinatesInfo = [coord + exCoord for coord, exCoord in zip(AUXCoordinates, DFCoordinates)] # coordinates for all 12 layers
     allCoordinatesInfo = [sorted(coordinates, key = lambda coord: coord[1]) for coordinates in allCoordinatesInfo] # sort coordinate info by layer number
 
@@ -40,12 +41,17 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
 
     # add in -1 placeholders for layers that don't have hit info
     for sortedCoordinates in allSortedCoordinates:
+        missingLayers = 0
         for layer in range(12):
             if layer not in sortedCoordinates.keys():
                 if layer <= 3: # IBL layer
                     sortedCoordinates[layer] = [[-1, -1]]
                 else:
                     sortedCoordinates[layer] = [-1]
+                missingLayers += 1
+        if missingLayers > 1:
+            sortedCoordinates[0] = -2
+    allSortedCoordinates[:] = [coords for coords in allSortedCoordinates if coords[0] != -2]
 
     # make lists of all candidates hits for each track
     trackCandidates = []

@@ -20,7 +20,8 @@ def extractOneSetOfConstants(extrapolatorConstants_Lines):
 
         # first line is 8L sector ID and conn ID
         if lineNumber == 1:
-            sectorID_8L = int(regSlice(line, 29, 2), 2)
+            # sectorID_8L = int(regSlice(line, 29, 2), 2)
+            sectorID_8L = int(regSlice(line, 27, 0), 2)
             connID = regSlice(line, 1, 0)
 
         elif lineNumber <= 61:

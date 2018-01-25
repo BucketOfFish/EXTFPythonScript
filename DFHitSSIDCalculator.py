@@ -30,7 +30,8 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
 
         # tower=0
         if isIBLHit:
-            localModuleID = localModuleIDDictionary[(tower, 0, globalModuleID)] # use dictionary to find the local module ID
+            if (tower, 0, globalModuleID) in localModuleIDDictionary:
+                localModuleID = localModuleIDDictionary[(tower, 0, globalModuleID)] # use dictionary to find the local module ID
             layer = 0
             IBLPhi = localSSIDCoordinates[0]
             IBLEta = localSSIDCoordinates[1]
