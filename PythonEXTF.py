@@ -16,7 +16,7 @@ import TrackFitter
 # Open files, read lines, convert to binary, then parse
 ####################################################################################################
 
-execfile("Options/Stream3_Tower22_1Event.py")
+execfile("Options/stream3_test4_vector9.py")
 
 # extrapolation constants
 with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
@@ -56,6 +56,8 @@ def process_one_event(inputAUXData, inputDFData):
     #################
 
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
+    for data in inputAUXData:
+        print data
     extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, tower, moduleIDDictionary)
 
     #################
@@ -68,6 +70,7 @@ def process_one_event(inputAUXData, inputDFData):
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
 
+    return DFGlobalSSIDs
     print "Track candidates in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords"
     for candidate in trackCandidates:
         print candidate 
@@ -94,5 +97,6 @@ def process_one_event(inputAUXData, inputDFData):
 if __name__ == "__main__":
 
     for (inputAUXData, inputDFData) in zip(AUXDataEvents, DFDataEvents):
-        process_one_event(inputAUXData, inputDFData)
+        DFHits = process_one_event(inputAUXData, inputDFData)
         raw_input("Press Enter to continue...")
+        assert 1==2

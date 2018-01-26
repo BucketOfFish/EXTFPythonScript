@@ -12,6 +12,8 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
 
         globalModuleID = hitCoordinateValues[0]
         coordinates = hitCoordinateValues[1]
+        globalModuleID = 6332
+        coordinates = [190]
         isIBLHit = (len(coordinates) == 2) # are these IBL or SCT coordinates
 
         localSSIDCoordinates = []
@@ -44,7 +46,7 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
             localSSID = localSSIDCoordinates[0]
 
         if localModuleID == -1:
-            # print "Global module ID", globalModuleID, "not found in dictionary"
+            print "Global module ID", globalModuleID, "not found in dictionary"
             continue
         # print "Local module ID and SSID:", localModuleID, localSSID
 
@@ -52,6 +54,9 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
             globalSSID = localModuleID * 420 + localSSID # IBL
         else:
             globalSSID = localModuleID * 96 + localSSID # SCT
+
+        print globalSSID
+        assert 1==2
 
         if globalSSID != 0: # temporary fix - DF is apparently sending us a lot of hits with SSID=0
             globalSSIDs.append(globalSSID)
