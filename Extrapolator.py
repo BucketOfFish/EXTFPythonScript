@@ -4,7 +4,7 @@ from math import floor
 # for every track, compute the extrapolated global SSIDs (expanded to one module on any side)
 # returns a list of lists, such as [[track 1 extr.], [track 2 extr.]...]
 # for each track, the list is composed of (global SSID, layer), such as [(2412, 0), (2462, 0)... (2111, 7)...]
-def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleIDDictionary):
+def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary_SCT, localModuleIDDictionary_IBL):
 
     # returned values
     globalSSIDs = []
@@ -25,6 +25,8 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleI
             # keep eta and phi coordinates of IBL separate for now - we need to see if they fall outside the module
             localSSIDCoordinates[0] = extrapolatedCoordinates[0] / 64.0 # IBL phi is scaled by 1/64
             localSSIDCoordinates[1] = extrapolatedCoordinates[1] / (16 * 16.32) # IBL eta is scaled by a different constant
+            for i in range(2, 5):
+                localSSIDCoordinates[i] = extrapolatedCoordinates[i] / 16.0 # SCT is scaled by 1/16
             localSSIDCoordinates = [int(floor(number)) for number in localSSIDCoordinates] # next, floor - for e.g. -0.5, go to -1
 
             expandedLocalSSIDs = [] # look at the SSIDs surrounding each of our extrapolated SSIDs - grid of width 42 and height 10
@@ -119,7 +121,6 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleI
                     expandedLocalSSIDs.append(IBLLocalSSID + 42)
                     expandedLocalSSIDs.append(IBLLocalSSID + 43)
                     expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID)
                     expandedLocalSSIDs.append(IBLLocalSSID + 1)
                     expandedLocalSSIDs.append(IBLLocalSSID - 41)
                     expandedLocalSSIDs.append(IBLLocalSSID - 42)
@@ -155,12 +156,19 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, tower, localModuleI
             # End stupid code #
             ###################
 
-            localModuleIDs = [localModuleIDDictionary[(tower, 0, globalModuleIDs[0])]] # use dictionary to find the four local module IDs
-            localModuleIDs.append(localModuleIDDictionary[(tower, 5, globalModuleIDs[1])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 7, globalModuleIDs[2])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 11, globalModuleIDs[3])])
+            localModuleIDs = [localModuleIDDictionary_IBL[(0, 0, globalModuleIDs[0])]] # use dictionary to find the four local module IDs
+            # localModuleIDs.append(localModuleIDDictionary[(tower, 5, globalModuleIDs[1])])
+            # localModuleIDs.append(localModuleIDDictionary[(tower, 7, globalModuleIDs[2])])
+            # localModuleIDs.append(localModuleIDDictionary[(tower, 11, globalModuleIDs[3])])
+            localModuleIDs.append(localModuleIDDictionary_SCT[(1, 0, globalModuleIDs[1])])
+            localModuleIDs.append(localModuleIDDictionary_SCT[(1, 0, globalModuleIDs[2])])
+            localModuleIDs.append(localModuleIDDictionary_SCT[(1, 0, globalModuleIDs[3])])
             newLayers = [0] * nSSIDsInGroup[0] + [5] * nSSIDsInGroup[1] + [7] * nSSIDsInGroup[2] + [11] * nSSIDsInGroup[3] # local module IDs are not unique across layers, so we need to keep this info
             localModuleIDs = [localModuleIDs[0]] * nSSIDsInGroup[0] + [localModuleIDs[1]] * nSSIDsInGroup[1] + [localModuleIDs[2]] * nSSIDsInGroup[2] + [localModuleIDs[3]] * nSSIDsInGroup[3]
+
+            # localModuleIDs = [0, 0, 0, 0]
+            # localModuleIDs = [localModuleIDs[0]] * nSSIDsInGroup[0] + [localModuleIDs[1]] * nSSIDsInGroup[1] + [localModuleIDs[2]] * nSSIDsInGroup[2] + [localModuleIDs[3]] * nSSIDsInGroup[3]
+            # newLayers = [0] * nSSIDsInGroup[0] + [5] * nSSIDsInGroup[1] + [7] * nSSIDsInGroup[2] + [11] * nSSIDsInGroup[3] # local module IDs are not unique across layers, so we need to keep this info
 
             expandedGlobalSSIDs = np.array(localModuleIDs) * 96 + np.array(expandedLocalSSIDs) # SCT
             for i in range(nSSIDsInGroup[0]):

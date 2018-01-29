@@ -25,9 +25,14 @@ extrapolatorConstants_Lines = [hexToBin(hexNumber) for hexNumber in extrapolator
 extrapolatorConstants = ExtrapolatorConstantsExtraction.extractConstants(extrapolatorConstants_Lines)
 
 # local-global module ID dictionary
-with open(moduleIDDictionary_FileName) as moduleIDDictionaryFile:
+with open(moduleIDDictionary_FileName_SCT) as moduleIDDictionaryFile:
     moduleIDDictionary_Lines = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
-moduleIDDictionary = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
+moduleIDDictionary_Lines = [hexToBin(hexNumber) for hexNumber in moduleIDDictionary_Lines]
+moduleIDDictionary_SCT = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
+with open(moduleIDDictionary_FileName_IBL) as moduleIDDictionaryFile:
+    moduleIDDictionary_Lines = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
+moduleIDDictionary_Lines = [hexToBin(hexNumber) for hexNumber in moduleIDDictionary_Lines]
+moduleIDDictionary_IBL = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
 
 # AUX stream
 with open(inputAUXData_FileName) as inputAUXDataFile:
@@ -56,21 +61,21 @@ def process_one_event(inputAUXData, inputDFData):
     #################
 
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
-    for data in inputAUXData:
-        print data
-    extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, tower, moduleIDDictionary)
+    extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, moduleIDDictionary_SCT, moduleIDDictionary_IBL)
 
     #################
     # Hits Matching #
     #################
 
+    print inputDFData
     # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
-    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
+    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary_SCT, moduleIDDictionary_IBL)
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
 
-    return DFGlobalSSIDs
+    for ssid in DFGlobalSSIDs:
+        print ssid
     print "Track candidates in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords"
     for candidate in trackCandidates:
         print candidate 

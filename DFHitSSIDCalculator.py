@@ -2,7 +2,7 @@ from math import floor
 
 # get glocal SSIDs for DF hits
 # return list of (global SSID, layer, coordinates) for hits
-def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
+def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary_SCT, localModuleIDDictionary_IBL):
 
     globalSSIDs = []
     layers = []
@@ -12,8 +12,6 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
 
         globalModuleID = hitCoordinateValues[0]
         coordinates = hitCoordinateValues[1]
-        globalModuleID = 6332
-        coordinates = [190]
         isIBLHit = (len(coordinates) == 2) # are these IBL or SCT coordinates
 
         localSSIDCoordinates = []
@@ -29,20 +27,32 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
         localSSIDCoordinates = [int(floor(number)) for number in localSSIDCoordinates] # next, floor - for e.g. -0.5, go to -1
         # print "Local SSID Coordinates:", localSSIDCoordinates
 
-        # tower=0
+        # if isIBLHit:
+            # if (tower, 0, globalModuleID) in localModuleIDDictionary:
+                # localModuleID = localModuleIDDictionary[(tower, 0, globalModuleID)] # use dictionary to find the local module ID
+            # layer = 0
+            # IBLPhi = localSSIDCoordinates[0]
+            # IBLEta = localSSIDCoordinates[1]
+            # localSSID = IBLPhi + (IBLEta * 42)
+        # else:
+            # SCTLayers = [5, 7, 11] # don't know which layer this module ID is on, so check which one exists in the module map
+            # for SCTLayer in SCTLayers: # check dictionary for all three SCT layers - global module ID is only on one of them
+                # if (tower, SCTLayer, globalModuleID) in localModuleIDDictionary:
+                    # localModuleID = localModuleIDDictionary[(tower, SCTLayer, globalModuleID)]
+                    # layer = SCTLayer
+            # localSSID = localSSIDCoordinates[0]
+
         if isIBLHit:
-            if (tower, 0, globalModuleID) in localModuleIDDictionary:
-                localModuleID = localModuleIDDictionary[(tower, 0, globalModuleID)] # use dictionary to find the local module ID
+            if (0, 0, globalModuleID) in localModuleIDDictionary_IBL:
+                localModuleID = localModuleIDDictionary_IBL[(0, 0, globalModuleID)] # use dictionary to find the local module ID
             layer = 0
             IBLPhi = localSSIDCoordinates[0]
             IBLEta = localSSIDCoordinates[1]
             localSSID = IBLPhi + (IBLEta * 42)
         else:
-            SCTLayers = [5, 7, 11] # don't know which layer this module ID is on, so check which one exists in the module map
-            for SCTLayer in SCTLayers: # check dictionary for all three SCT layers - global module ID is only on one of them
-                if (tower, SCTLayer, globalModuleID) in localModuleIDDictionary:
-                    localModuleID = localModuleIDDictionary[(tower, SCTLayer, globalModuleID)]
-                    layer = SCTLayer
+            if (1, 0, globalModuleID) in localModuleIDDictionary_SCT:
+                localModuleID = localModuleIDDictionary_SCT[(1, 0, globalModuleID)]
+            layer = 1
             localSSID = localSSIDCoordinates[0]
 
         if localModuleID == -1:
@@ -54,9 +64,6 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
             globalSSID = localModuleID * 420 + localSSID # IBL
         else:
             globalSSID = localModuleID * 96 + localSSID # SCT
-
-        print globalSSID
-        assert 1==2
 
         if globalSSID != 0: # temporary fix - DF is apparently sending us a lot of hits with SSID=0
             globalSSIDs.append(globalSSID)
