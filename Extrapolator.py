@@ -21,12 +21,10 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictio
             globalModuleIDs = np.array(matrixValues[sectorID][2]) # global module IDs for SCT and IBL layer hits
 
             extrapolatedCoordinates = vector + matrix.dot(coordinates) # perform matrix extrapolation - this gives [IBL_phi IBL_eta SCT SCT SCT]
-            localSSIDCoordinates = extrapolatedCoordinates / 16.0 # first step of local SSID mapping is scaling the extrapolated parameters
+            localSSIDCoordinates = extrapolatedCoordinates / 16.0 # SCT is scaled by 1/16
             # keep eta and phi coordinates of IBL separate for now - we need to see if they fall outside the module
             localSSIDCoordinates[0] = extrapolatedCoordinates[0] / 64.0 # IBL phi is scaled by 1/64
             localSSIDCoordinates[1] = extrapolatedCoordinates[1] / (16 * 16.32) # IBL eta is scaled by a different constant
-            for i in range(2, 5):
-                localSSIDCoordinates[i] = extrapolatedCoordinates[i] / 16.0 # SCT is scaled by 1/16
             localSSIDCoordinates = [int(floor(number)) for number in localSSIDCoordinates] # next, floor - for e.g. -0.5, go to -1
 
             expandedLocalSSIDs = [] # look at the SSIDs surrounding each of our extrapolated SSIDs - grid of width 42 and height 10

@@ -67,18 +67,35 @@ def process_one_event(inputAUXData, inputDFData):
     # Hits Matching #
     #################
 
-    print inputDFData
     # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
     DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary_SCT, moduleIDDictionary_IBL)
+
+    print "extrapolated global SSIDs"
+    # a = [i[0] for i in reduce(lambda x, y: x+y, extrapolatedGlobalSSIDs)]
+    # print set(a)
+    a = [[i[0] for i in j] for j in extrapolatedGlobalSSIDs]
+    for event in a:
+        print event
+    print ""
+    print "DF SSIDs"
+    b = [i[0] for i in DFGlobalSSIDs]
+    print set(b)
+    print ""
+    print "SSID overlap"
+    c = set.intersection(set(reduce(lambda x, y: x+y, a)), set(b))
+    print c
+    print ""
+    print "SSID matches for each event"
+    for event in a:
+        print set.intersection(set(event), c)
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
 
-    for ssid in DFGlobalSSIDs:
-        print ssid
+    print ""
     print "Track candidates in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords"
-    for candidate in trackCandidates:
-        print candidate 
+    for event in trackCandidates:
+        print event 
 
     #################
     # Track Fitting #

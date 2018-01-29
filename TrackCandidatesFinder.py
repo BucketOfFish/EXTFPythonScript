@@ -12,12 +12,13 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
     DFCoordinates = []
     for trackExtrapolatedSSIDs in AUXExtrapolatedGlobalSSIDs:
         matchedCoordinates = []
-        for SSID in trackExtrapolatedSSIDs:
+        for (SSID, layer) in trackExtrapolatedSSIDs:
         # check if extrapolated hits are among DF hits
-            for index, DFSSID in enumerate(DFSSIDsToMatch):
+            for index, (DFSSID, _) in enumerate(DFSSIDsToMatch):
                 if SSID == DFSSID:
                     matchedDFInfo = DFGlobalSSIDs[index] # (SSID, layer, [coordinates])
-                    matchedCoordinates.append((matchedDFInfo[2], matchedDFInfo[1])) # DF ([coordinates], layer)
+                    # matchedCoordinates.append((matchedDFInfo[2], matchedDFInfo[1])) # DF ([coordinates], layer)
+                    matchedCoordinates.append((matchedDFInfo[2], layer)) # DF ([coordinates], layer)
         DFCoordinates.append(matchedCoordinates)
 
     # combine the 12-layer hit coordinates with layer info
