@@ -63,6 +63,11 @@ def process_one_event(inputAUXData, inputDFData):
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
     extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, moduleIDDictionary_SCT, moduleIDDictionary_IBL)
 
+    # remove duplicate sets of SSIDs
+    for i in range(len(extrapolatedGlobalSSIDs)-1, 0, -1):
+        if extrapolatedGlobalSSIDs[i] == extrapolatedGlobalSSIDs[i-1]:
+            extrapolatedGlobalSSIDs.pop(i)
+
     #################
     # Hits Matching #
     #################
