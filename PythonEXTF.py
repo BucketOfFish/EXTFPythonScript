@@ -16,7 +16,7 @@ import TrackFitter
 # Open files, read lines, convert to binary, then parse
 ####################################################################################################
 
-execfile("Options/stream3_test4_vector9.py")
+execfile("Options/2018_01_26.py")
 
 # extrapolation constants
 with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
@@ -79,7 +79,8 @@ def process_one_event(inputAUXData, inputDFData):
     print ""
     print "DF SSIDs"
     b = [i[0] for i in DFGlobalSSIDs]
-    print set(b)
+    print b
+    # print sorted(set(b))
     print ""
     print "SSID overlap"
     c = set.intersection(set(reduce(lambda x, y: x+y, a)), set(b))

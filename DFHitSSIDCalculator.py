@@ -65,7 +65,7 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary_SCT, localModuleIDDi
         else:
             globalSSID = localModuleID * 96 + localSSID # SCT
 
-        if globalSSID != 0: # temporary fix - DF is apparently sending us a lot of hits with SSID=0
+        if sum(coordinates) != 0: # temp fix - we're getting spurious (0, 0) hits in our input data
             globalSSIDs.append(globalSSID)
             layers.append(layer)
             allCoordinates.append(coordinates)

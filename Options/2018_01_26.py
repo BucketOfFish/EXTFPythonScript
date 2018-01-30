@@ -1,6 +1,6 @@
-inputAUXData_FileName = 'Data/JCevent_aux.dat' # AUX input data
+inputAUXData_FileName = 'Data/tv_2018-01-26_aux.txt' # AUX input data
 shiftBitAUX = False # move the last hex character of each line to the front (a formatting issue)
-inputDFData_FileName = 'Data/JCevent_df.dat' # DF data
+inputDFData_FileName = 'Data/tv_2018-01-26_df.txt' # DF data
 shiftBitDF = False # move the last hex character of each line to the front (a formatting issue)
 
 # moduleIDDictionary_FileName = 'Data/raw_12LiblHW.moduleidmap' # maps between local module ID, tower, layer, and gloabl module ID
