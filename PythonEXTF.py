@@ -122,4 +122,3 @@ if __name__ == "__main__":
     for (inputAUXData, inputDFData) in zip(AUXDataEvents, DFDataEvents):
         DFHits = process_one_event(inputAUXData, inputDFData)
         raw_input("Press Enter to continue...")
-        assert 1==2

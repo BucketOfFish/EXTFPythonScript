@@ -27,6 +27,8 @@ def extractAUXData(inputAUXData_Lines):
         if regSlice(line, 31, 16) == '1110000011011010': # e0da
             readingDataWords = False
             yield zip(sectorIDs, coordinates) # return one event
+            sectorIDs = []
+            coordinates = []
 
         if regSlice(line, 31, 16) == '1011000011110000': # b0f0
             headerCount = 0
