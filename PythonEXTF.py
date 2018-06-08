@@ -16,7 +16,7 @@ import TrackFitter
 # Open files, read lines, convert to binary, then parse
 ####################################################################################################
 
-execfile("Options/2018_01_26.py")
+execfile("Options/DefaultOptions.py")
 
 # extrapolation constants
 with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
@@ -25,14 +25,9 @@ extrapolatorConstants_Lines = [hexToBin(hexNumber) for hexNumber in extrapolator
 extrapolatorConstants = ExtrapolatorConstantsExtraction.extractConstants(extrapolatorConstants_Lines)
 
 # local-global module ID dictionary
-with open(moduleIDDictionary_FileName_SCT) as moduleIDDictionaryFile:
+with open(moduleIDDictionary_FileName) as moduleIDDictionaryFile:
     moduleIDDictionary_Lines = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
-moduleIDDictionary_Lines = [hexToBin(hexNumber) for hexNumber in moduleIDDictionary_Lines]
-moduleIDDictionary_SCT = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
-with open(moduleIDDictionary_FileName_IBL) as moduleIDDictionaryFile:
-    moduleIDDictionary_Lines = [line.strip('\n') for line in moduleIDDictionaryFile.readlines()]
-moduleIDDictionary_Lines = [hexToBin(hexNumber) for hexNumber in moduleIDDictionary_Lines]
-moduleIDDictionary_IBL = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
+moduleIDDictionary = ModuleIDExtraction.extractModuleIDDictionary(moduleIDDictionary_Lines)
 
 # AUX stream
 with open(inputAUXData_FileName) as inputAUXDataFile:
@@ -61,7 +56,7 @@ def process_one_event(inputAUXData, inputDFData):
     #################
 
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
-    extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, moduleIDDictionary_SCT, moduleIDDictionary_IBL)
+    extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, moduleIDDictionary, tower)
 
     # remove duplicate sets of SSIDs
     for i in range(len(extrapolatedGlobalSSIDs)-1, 0, -1):
@@ -73,7 +68,7 @@ def process_one_event(inputAUXData, inputDFData):
     #################
 
     # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
-    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary_SCT, moduleIDDictionary_IBL)
+    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
 
     print "extrapolated global SSIDs"
     # a = [i[0] for i in reduce(lambda x, y: x+y, extrapolatedGlobalSSIDs)]
