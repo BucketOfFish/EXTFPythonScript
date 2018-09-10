@@ -1,4 +1,4 @@
-import sys
+import sys, pdb
 sys.dont_write_bytecode = True # stop generating .pyc files when run
 
 from Utilities import *
@@ -88,7 +88,7 @@ def process_one_event(inputAUXData, inputDFData):
     print ""
     print "SSID matches for each event"
     for event in a:
-        print set.intersection(set(event), c)
+        print list(set.intersection(set(event), c))
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
@@ -102,15 +102,16 @@ def process_one_event(inputAUXData, inputDFData):
     # Track Fitting #
     #################
 
-    # with open(TFConstants_FileName) as TFConstantsFile:
-        # TFConstantsData = [line.strip('\n') for line in TFConstantsFile.readlines()]
-    # TFConstantsData = [hexToBin(hexNumber) for hexNumber in TFConstantsData]
-    # TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData)
+    with open(TFConstants_FileName) as TFConstantsFile:
+        TFConstantsData = [line.strip('\n') for line in TFConstantsFile.readlines()]
+    TFConstantsData = [hexToBin(hexNumber) for hexNumber in TFConstantsData]
+    TFConstants = TFConstantsExtraction.extractConstants(TFConstantsData)
 
-    # # calculates best track fit from track candidates
-    # bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
+    # calculates best track fit from track candidates
+    print ""
+    bestTracks = TrackFitter.fitTracks(trackCandidates, TFConstants)
 
-    # print "\n----------------------------------------"
+    # print ""
     # print "Printing chi2 values and parameters for best-fit tracks:"
     # for track in bestTracks:
         # print track[0], ",", [round(param, 3) for param in track[1]]
@@ -120,5 +121,7 @@ def process_one_event(inputAUXData, inputDFData):
 if __name__ == "__main__":
 
     for (inputAUXData, inputDFData) in zip(AUXDataEvents, DFDataEvents):
+        print "Processing an event"
+        print ""
         DFHits = process_one_event(inputAUXData, inputDFData)
         raw_input("Press Enter to continue...")

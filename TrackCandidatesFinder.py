@@ -1,4 +1,5 @@
 from collections import defaultdict
+import pdb
 
 # return all combinations of hit candidates for track fitting
 # return in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords
@@ -17,15 +18,20 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
             for index, (DFSSID, _) in enumerate(DFSSIDsToMatch):
                 if SSID == DFSSID:
                     matchedDFInfo = DFGlobalSSIDs[index] # (SSID, layer, [coordinates])
+                    # if layer != matchedDFInfo[1]:
+                        # print ""
+                        # print "ERROR: Layer to SSID Mismatch"
+                        # assert 1==2
                     # matchedCoordinates.append((matchedDFInfo[2], matchedDFInfo[1])) # DF ([coordinates], layer)
-                    matchedCoordinates.append((matchedDFInfo[2], layer)) # DF ([coordinates], layer)
+                    if layer == matchedDFInfo[1]:
+                        matchedCoordinates.append((matchedDFInfo[2], layer)) # DF ([coordinates], layer)
         DFCoordinates.append(matchedCoordinates)
 
     # combine the 12-layer hit coordinates with layer info
     twelveLayerHits = []
     sectorIDs = [coord[0] for coord in AUXHits] # sector ID of track
     AUXCoordinates = [coord[1] for coord in AUXHits] # coordinates of original 8-layer hit
-    AUXCoordinates = [[([coord[0], coord[1]], 1), ([coord[2], coord[3]], 2), ([coord[4], coord[5]], 3), (coord[6], 4), (coord[7], 6), (coord[8], 8), (coord[9], 9), (coord[10], 10)] for coord in AUXCoordinates] # organize by layer - for IBL, do row, col
+    AUXCoordinates = [[([coord[0], coord[1]], 1), ([coord[2], coord[3]], 2), ([coord[4], coord[5]], 3), ([coord[6]], 4), ([coord[7]], 6), ([coord[8]], 8), ([coord[9]], 9), ([coord[10]], 10)] for coord in AUXCoordinates] # organize by layer - for IBL, do row, col
     # for AUX, DF in zip (AUXCoordinates, DFCoordinates):
         # print "Original AUX track is", AUX
         # print "Extrapolated DF hits are", DF
