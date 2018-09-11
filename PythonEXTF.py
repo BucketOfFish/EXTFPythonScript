@@ -47,6 +47,7 @@ else:
     inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
 DFDataEvents = DFDataExtraction.extractDFData(inputDFData_Lines)
 
+pdb.set_trace()
 ####################################################################################################
 
 def process_one_event(inputAUXData, inputDFData):
