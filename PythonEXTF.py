@@ -36,7 +36,13 @@ if shiftBitAUX:
     inputAUXData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputAUXData_Lines]
 else:
     inputAUXData_Lines = [hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
-AUXDataEvents = AUXDataExtraction.extractAUXData(inputAUXData_Lines) # 8 layer hit coordinates
+AUXDataEvents = list(AUXDataExtraction.extractAUXData(inputAUXData_Lines)) # 8 layer hit coordinates
+
+print "AUX tracks (sectorID, 11 coordinates)"
+for event in AUXDataEvents:
+    for track in event:
+        print track
+print ""
 
 # DF stream
 with open(inputDFData_FileName) as inputDFDataFile:
@@ -45,9 +51,13 @@ if shiftBitDF:
     inputDFData_Lines = [hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputDFData_Lines]
 else:
     inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
-DFDataEvents = DFDataExtraction.extractDFData(inputDFData_Lines)
+DFDataEvents = list(DFDataExtraction.extractDFData(inputDFData_Lines))
 
-pdb.set_trace()
+print "DF hits (global module ID, hit coordinates)"
+for event in DFDataEvents:
+    print event
+print ""
+
 ####################################################################################################
 
 def process_one_event(inputAUXData, inputDFData):
