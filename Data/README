@@ -1,0 +1,3 @@
+EXP constants: /afs/cern.ch/user/l/longjon/work/public/FTK/FTK-release/ssb/scripts/octopus/ Constants/EXPConstants_reg22_new.txt
+TF constants (on Lab 4 or Point 1 computer): /det/ftk/repo/condDB/lowDataflow/ssb_constants/TFConstants_reg22.txt
+Module ID map: https://gitlab.cern.ch/atlas/athena/blob/21.0/Trigger/TrigFTK/TrigFTKSim/config/map_file/raw_12Libl3D.moduleidmap
