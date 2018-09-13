@@ -11,7 +11,7 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictio
 
     for hitCoordinateValues in hitCoordinates:
 
-        sectorID = hitCoordinateValues[0]
+        sectorID = (hitCoordinateValues[0], 0) # we're only considering connection 0 for now
         coordinates = np.array(hitCoordinateValues[1])
 
         if sectorID in matrixValues: # if we have matrix, vector, etc. info stored for this sector ID
@@ -155,10 +155,17 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictio
             ###################
 
             localModuleIDs = []
-            localModuleIDs.append(localModuleIDDictionary[(tower, 0, globalModuleIDs[0])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 5, globalModuleIDs[1])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 7, globalModuleIDs[2])])
-            localModuleIDs.append(localModuleIDDictionary[(tower, 11, globalModuleIDs[3])])
+            def addLocalModuleID(key):
+                if key in localModuleIDDictionary:
+                    localModuleIDs.append(localModuleIDDictionary[key])
+                else:
+                    localModuleIDs.append(0)
+                    print "WARNING:", key, "not in local/global module ID dictionary"
+            addLocalModuleID((tower, 0, globalModuleIDs[0]))
+            addLocalModuleID((tower, 5, globalModuleIDs[1]))
+            addLocalModuleID((tower, 7, globalModuleIDs[2]))
+            addLocalModuleID((tower, 11, globalModuleIDs[3]))
+
             newLayers = [0] * nSSIDsInGroup[0] + [5] * nSSIDsInGroup[1] + [7] * nSSIDsInGroup[2] + [11] * nSSIDsInGroup[3] # local module IDs are not unique across layers, so we need to keep this info
             localModuleIDs = [localModuleIDs[0]] * nSSIDsInGroup[0] + [localModuleIDs[1]] * nSSIDsInGroup[1] + [localModuleIDs[2]] * nSSIDsInGroup[2] + [localModuleIDs[3]] * nSSIDsInGroup[3]
 

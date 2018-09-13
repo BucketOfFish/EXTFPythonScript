@@ -1,5 +1,6 @@
 import numpy as np
 from Utilities import *
+import pdb
 
 # given 64 lines of 32 bits each, this function extracts a vector, a matrix, and other info such as module IDs
 # the return form is a dictionary with sector IDs as keys, and values as (vector, matrix, list of 4 global module IDs)
@@ -10,19 +11,15 @@ def extractOneSetOfConstants(extrapolatorConstants_Lines):
     vector = []
     emptyID = list('000000000000000000') # some stupid Python nonsense - strings are immutable
     globalModuleIDs = [list(emptyID), list(emptyID), list(emptyID), list(emptyID), list(emptyID)]
-    sectorID = [] # the fifth element of globalModuleIDs is the sector ID - will be separated at the end
-    sectorID_8L = []
-    connID = []
-    nConn = []
 
     # read through each line of the file
     for lineNumber, line in enumerate(extrapolatorConstants_Lines, start=1):
 
         # first line is 8L sector ID and conn ID
         if lineNumber == 1:
-            # sectorID_8L = int(regSlice(line, 29, 2), 2)
-            sectorID_8L = int(regSlice(line, 27, 0), 2)
-            connID = regSlice(line, 1, 0)
+            sectorID_8L = int(regSlice(line, 29, 2), 2)
+            # sectorID_8L = int(regSlice(line, 27, 0), 2)
+            connID = int(regSlice(line, 1, 0), 2)
 
         elif lineNumber <= 61:
             # these lines contain constants
@@ -51,8 +48,8 @@ def extractOneSetOfConstants(extrapolatorConstants_Lines):
     vector = list(reversed(vector))
     matrix = np.array(matrix).reshape(5, 11)
 
-    # return sector ID, vector, and matrix
-    return (sectorID_8L, vector, matrix, globalModuleIDs) # the other sectorID is for TF?
+    # return sector ID, connection ID, vector, and matrix
+    return (sectorID_8L, connID, vector, matrix, globalModuleIDs) # the other sectorID is for TF?
 
 def extractConstants(extrapolatorConstants_Lines):
 
@@ -65,8 +62,8 @@ def extractConstants(extrapolatorConstants_Lines):
     nMatrices = 0
 
     while (nMatrices+1)*64 <= nLines:
-        sectorID, vector, matrix, globalModuleIDs = extractOneSetOfConstants(extrapolatorConstants_Lines[nMatrices*64:nMatrices*64+63])
-        sectorIDs.append(sectorID)
+        sectorID, connID, vector, matrix, globalModuleIDs = extractOneSetOfConstants(extrapolatorConstants_Lines[nMatrices*64:nMatrices*64+63])
+        sectorIDs.append((sectorID, connID))
         vectors.append(vector)
         matrices.append(matrix)
         globalModuleIDsList.append(globalModuleIDs)

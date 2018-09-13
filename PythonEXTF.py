@@ -81,6 +81,7 @@ def process_one_event(inputAUXData, inputDFData):
     # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
     DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
 
+    print ""
     print "extrapolated global SSIDs"
     # a = [i[0] for i in reduce(lambda x, y: x+y, extrapolatedGlobalSSIDs)]
     # print set(a)

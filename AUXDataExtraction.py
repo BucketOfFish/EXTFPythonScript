@@ -42,8 +42,8 @@ def extractAUXData(inputAUXData_Lines):
             trackWordCount += 1
 
             if regSlice(line, 31, 31) == '1': # begin track
-                sectorID = regSlice(line, 12, 0) + '00'
-                # sectorID = regSlice(line, 15, 0)
+                # sectorID = regSlice(line, 12, 0) + '00'
+                sectorID = regSlice(line, 15, 0)
                 sectorIDs.append(int(sectorID, 2))
                 nTracks += 1
                 trackWordCount = 0

@@ -43,7 +43,7 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
             localSSID = localSSIDCoordinates[0]
 
         if localModuleID == -1:
-            print "Global module ID", globalModuleID, "not found in dictionary"
+            # print "Global module ID", globalModuleID, "not found in dictionary"
             continue
         # print "Local module ID and SSID:", localModuleID, localSSID
 
