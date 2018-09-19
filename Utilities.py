@@ -1,4 +1,6 @@
 from struct import pack,unpack
+import numpy as np
+import sys
 
 # mimics verilog register index slicing behavior
 # regSlice(reg, a, b) has b as the lower number - takes slice from indices b to a inclusive
@@ -20,6 +22,9 @@ def hexToInt(hexNumber):
 def hexToFloat32(hexNumber):
     binary = hexToBin(hexNumber)
     return binToFloat32(binary)
+def hexToFloat16(hexNumber):
+    binary = hexToBin(hexNumber)
+    return binToFloat16(binary)
 def binToInt(binary):
     return int(binary, 2)
 def binToHex(binary):
@@ -28,6 +33,10 @@ def binToFloat32(binary):
     # IEEE-754, but with the first 5 bits removed for some reason when reading TF consts - just following what Markus has in the documentation spreadsheet
     integer = binToInt(binary)
     return unpack("f", pack("I", integer))[0]
+def binToFloat16(binary):
+    sys.exit("The binToFloat16 funciton in Utilities is incorrect")
+    # print np.array(list(binary), dtype=int)
+    # return np.array(binary).astype(np.float16)
 
 # move the first bit of a hex string to the back, or vice versa
 def shiftFrontToBack(hexNumber):

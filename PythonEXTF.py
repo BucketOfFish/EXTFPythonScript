@@ -38,12 +38,6 @@ else:
     inputAUXData_Lines = [hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
 AUXDataEvents = list(AUXDataExtraction.extractAUXData(inputAUXData_Lines)) # 8 layer hit coordinates
 
-print "AUX tracks (sectorID, 11 coordinates)"
-for event in AUXDataEvents:
-    for track in event:
-        print track
-print ""
-
 # DF stream
 with open(inputDFData_FileName) as inputDFDataFile:
     inputDFData_Lines = [line.strip('\n') for line in inputDFDataFile.readlines()]
@@ -53,14 +47,18 @@ else:
     inputDFData_Lines = [hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
 DFDataEvents = list(DFDataExtraction.extractDFData(inputDFData_Lines))
 
-print "DF hits (global module ID, hit coordinates)"
-for event in DFDataEvents:
-    print event
-print ""
-
 ####################################################################################################
 
 def process_one_event(inputAUXData, inputDFData):
+
+    print "AUX tracks (sectorID, 11 coordinates)"
+    for track in inputAUXData:
+        print track
+    print ""
+
+    print "DF hits (global module ID, hit coordinates)"
+    print inputDFData
+    print ""
 
     #################
     # Extrapolation #
@@ -69,10 +67,10 @@ def process_one_event(inputAUXData, inputDFData):
     # for every input AUX track, compute the (expanded) extrapolated global SSIDs on layers 0, 5, 7, and 11
     extrapolatedGlobalSSIDs = Extrapolator.getExtrapolatedGlobalSSIDs(extrapolatorConstants, inputAUXData, moduleIDDictionary, tower)
 
-    # remove duplicate sets of SSIDs
-    for i in range(len(extrapolatedGlobalSSIDs)-1, 0, -1):
-        if extrapolatedGlobalSSIDs[i] == extrapolatedGlobalSSIDs[i-1]:
-            extrapolatedGlobalSSIDs.pop(i)
+    # # remove duplicate sets of SSIDs
+    # for i in range(len(extrapolatedGlobalSSIDs)-1, 0, -1):
+        # if extrapolatedGlobalSSIDs[i] == extrapolatedGlobalSSIDs[i-1]:
+            # extrapolatedGlobalSSIDs.pop(i)
 
     #################
     # Hits Matching #
@@ -81,13 +79,12 @@ def process_one_event(inputAUXData, inputDFData):
     # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
     DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
 
-    print ""
     print "extrapolated global SSIDs"
     # a = [i[0] for i in reduce(lambda x, y: x+y, extrapolatedGlobalSSIDs)]
     # print set(a)
     a = [[i[0] for i in j] for j in extrapolatedGlobalSSIDs]
-    for event in a:
-        print event
+    for track in a:
+        print track
     print ""
     print "DF SSIDs"
     b = [i[0] for i in DFGlobalSSIDs]
@@ -98,9 +95,9 @@ def process_one_event(inputAUXData, inputDFData):
     c = set.intersection(set(reduce(lambda x, y: x+y, a)), set(b))
     print c
     print ""
-    print "SSID matches for each event"
-    for event in a:
-        print list(set.intersection(set(event), c))
+    print "SSID matches for each track"
+    for track in a:
+        print list(set.intersection(set(track), c))
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)

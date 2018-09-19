@@ -56,8 +56,8 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
                 else:
                     sortedCoordinates[layer] = [-1]
                 missingLayers += 1
-        if missingLayers > 2: # ignore tracks that have more than one missing layer
-            sortedCoordinates[0] = -2
+        # if missingLayers > 2: # ignore tracks that have more than one missing layer
+            # sortedCoordinates[0] = -2
     allSortedCoordinates[:] = [coords for coords in allSortedCoordinates if coords[0] != -2]
 
     # make lists of all candidates hits for each track
