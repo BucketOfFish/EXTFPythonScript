@@ -1,5 +1,5 @@
-import sys, pdb
-sys.dont_write_bytecode = True # stop generating .pyc files when run
+import sys, pdb  # NOQA
+sys.dont_write_bytecode = True  # stop generating .pyc files when run # NOQA
 
 from Utilities import *
 import ExtrapolatorConstantsExtraction
@@ -16,7 +16,7 @@ import TrackFitter
 # Open files, read lines, convert to binary, then parse
 ####################################################################################################
 
-execfile("Options/DefaultOptions.py")
+execfile("Options/Stream32_Tower22_1Event.py")
 
 # extrapolation constants
 with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
@@ -72,13 +72,6 @@ def process_one_event(inputAUXData, inputDFData):
         # if extrapolatedGlobalSSIDs[i] == extrapolatedGlobalSSIDs[i-1]:
             # extrapolatedGlobalSSIDs.pop(i)
 
-    #################
-    # Hits Matching #
-    #################
-
-    # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
-    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
-
     print "extrapolated global SSIDs"
     # a = [i[0] for i in reduce(lambda x, y: x+y, extrapolatedGlobalSSIDs)]
     # print set(a)
@@ -86,6 +79,14 @@ def process_one_event(inputAUXData, inputDFData):
     for track in a:
         print track
     print ""
+
+    #################
+    # Hits Matching #
+    #################
+
+    # calculate global SSIDs for DF hits - has temporary fix to ignore SSID=0 hits
+    DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
+
     print "DF SSIDs"
     b = [i[0] for i in DFGlobalSSIDs]
     print b
@@ -98,6 +99,10 @@ def process_one_event(inputAUXData, inputDFData):
     print "SSID matches for each track"
     for track in a:
         print list(set.intersection(set(track), c))
+
+    ####################
+    # Track Candidates #
+    ####################
 
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
