@@ -29,130 +29,25 @@ def getExtrapolatedGlobalSSIDs(extrapolatorConstants, AUXTrackCoordinates, local
 
             expandedLocalSSIDs = [] # look at the SSIDs surrounding each of our extrapolated SSIDs - grid of width 42 and height 10
 
-            ################################
-            # WARNING: Stupid code follows #
-            ################################
-
             # add SSIDs surrounding the extrapolated IBL SSID
             IBLPhi = localSSIDCoordinates[0]
             IBLEta = localSSIDCoordinates[1]
-            if IBLPhi < -1 or IBLPhi > 42 or IBLEta < -1 or IBLEta > 10: # outside of module by more than one row
-                pass
-            elif IBLPhi == -1 or IBLPhi == 42 or IBLEta == -1 or IBLEta == 10: # outside of module by one row
-                bottomRow = (IBLEta == -1)
-                topRow = (IBLEta == 10)
-                leftRow = (IBLPhi == -1)
-                rightRow = (IBLPhi == 42)
-                if bottomRow and leftRow:
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta+1) * 42))
-                elif bottomRow and rightRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta+1) * 42))
-                elif topRow and leftRow:
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta-1) * 42))
-                elif topRow and rightRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta-1) * 42))
-                elif bottomRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta+1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi + ((IBLEta+1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta+1) * 42))
-                elif topRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta-1) * 42))
-                elif leftRow:
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + (IBLEta * 42))
-                    expandedLocalSSIDs.append(IBLPhi+1 + ((IBLEta+1) * 42))
-                elif rightRow:
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta-1) * 42))
-                    expandedLocalSSIDs.append(IBLPhi-1 + (IBLEta * 42))
-                    expandedLocalSSIDs.append(IBLPhi-1 + ((IBLEta+1) * 42))
-            else: # inside module
-                bottomRow = (IBLEta == 0)
-                topRow = (IBLEta == 9)
-                leftRow = (IBLPhi == 0)
-                rightRow = (IBLPhi == 41)
-                IBLLocalSSID = IBLPhi + (IBLEta * 42) # IBL local SSID is eta times 42, plus phi
-                expandedLocalSSIDs.append(IBLLocalSSID)
-                if bottomRow and leftRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                elif bottomRow and rightRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                elif topRow and leftRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                elif topRow and rightRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
-                elif bottomRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                elif topRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
-                elif leftRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                elif rightRow:
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
-                else:
-                    expandedLocalSSIDs.append(IBLLocalSSID + 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 43)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID + 1)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 41)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 42)
-                    expandedLocalSSIDs.append(IBLLocalSSID - 43)
+            lowPhi = max(IBLPhi-1, 0)
+            highPhi = min(IBLPhi+1, 41)
+            lowEta = max(IBLEta-1, 0)
+            highEta = min(IBLEta+1, 9)
+            for i in range(lowEta, highEta+1):
+                for j in range(lowPhi, highPhi+1):
+                    expandedLocalSSIDs.append(i*42 + j)
             nSSIDsInGroup = [len(expandedLocalSSIDs)]
 
             # add SSIDs surrounding the extrapolated SCT SSIDs
             for SSID in (localSSIDCoordinates[2], localSSIDCoordinates[3], localSSIDCoordinates[4]):
-                if SSID < -1 or SSID > 96: # 96 SCT modules in tower
-                    pass
-                    nSSIDsInGroup.append(0)
-                elif SSID == -1:
-                    expandedLocalSSIDs.append(0)
-                    nSSIDsInGroup.append(1)
-                elif SSID == 96:
-                    expandedLocalSSIDs.append(95)
-                    nSSIDsInGroup.append(1)
-                elif SSID == 0:
-                    expandedLocalSSIDs.append(0)
-                    expandedLocalSSIDs.append(1)
-                    nSSIDsInGroup.append(2)
-                elif SSID == 95:
-                    expandedLocalSSIDs.append(94)
-                    expandedLocalSSIDs.append(95)
-                    nSSIDsInGroup.append(2)
-                else:
-                    expandedLocalSSIDs.append(SSID - 1)
-                    expandedLocalSSIDs.append(SSID)
-                    expandedLocalSSIDs.append(SSID + 1)
-                    nSSIDsInGroup.append(3)
-
-            ###################
-            # End stupid code #
-            ###################
+                lowSSID = max(SSID-1, 0)
+                highSSID = min(SSID+1, 95)
+                for i in range(lowSSID, highSSID+1):
+                    expandedLocalSSIDs.append(i)
+                nSSIDsInGroup.append(highSSID+1-lowSSID)
 
             localModuleIDs = []
             def addLocalModuleID(key):
