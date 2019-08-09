@@ -68,7 +68,7 @@ def getExtrapolatedGlobalSSIDs(extrapolatorConstants, AUXTrackCoordinates, local
             for i in range(nSSIDsInGroup[0]):
                 expandedGlobalSSIDs[i] = expandedLocalModuleIDs[i]  * 420 + expandedLocalSSIDs[i] # IBL
 
-            globalSSIDs.append(zip(list(expandedGlobalSSIDs), newLayers))
+            globalSSIDs.append(list(zip(list(expandedGlobalSSIDs), newLayers)))
 
             # print("Track in sector ID", sectorID, "has coordinates:", hitCoordinateValues[1])
             # print("\tGlobal module IDs after extrapolation:", globalModuleIDs)

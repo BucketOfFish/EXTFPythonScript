@@ -97,6 +97,7 @@ def process_one_event(inputAUXData, inputDFData):
     print("SSID matches for each track")
     for track in a:
         print(list(set.intersection(set(track), b)))
+    print("")
 
     ####################
     # Track Candidates #
