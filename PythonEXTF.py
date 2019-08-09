@@ -75,10 +75,8 @@ def process_one_event(inputAUXData, inputDFData):
             # extrapolatedGlobalSSIDs.pop(i)
 
     print("extrapolated global SSIDs")
-    # a = [i[0] for i in reduce(lambda x, y: x+y, extrapolatedGlobalSSIDs)]
-    # print(set(a))
-    a = [[i[0] for i in j] for j in extrapolatedGlobalSSIDs]
-    for global_SSIDs_for_track in a:
+    expTrackSSIDs = [[i[0] for i in j] for j in extrapolatedGlobalSSIDs]
+    for global_SSIDs_for_track in expTrackSSIDs:
         print(global_SSIDs_for_track)
     print("")
 
@@ -90,13 +88,15 @@ def process_one_event(inputAUXData, inputDFData):
     DFGlobalSSIDs = DFHitSSIDCalculator.getDFGlobalSSIDs(inputDFData, moduleIDDictionary, tower)
 
     print("DF SSIDs")
-    b = [i[0] for i in DFGlobalSSIDs]
-    print(b)
-    # print(sorted(set(b)))
+    DFSSIDs = [i[0] for i in DFGlobalSSIDs]
+    print(DFSSIDs)
+    # print(sorted(set(DF_SSIDs)))
     print("")
     print("SSID matches for each track")
-    for track in a:
-        print(list(set.intersection(set(track), b)))
+    matchedTrackSSIDs = []
+    for track in expTrackSSIDs:
+        matchedTrackSSIDs.append(list(set.intersection(set(track), DFSSIDs)))
+        print(matchedTrackSSIDs[-1])
     print("")
 
     ####################
@@ -106,7 +106,6 @@ def process_one_event(inputAUXData, inputDFData):
     # based on extrapolated SSIDs from AUX data, and SSIDs of DF hits, and given the original 8-layer hits, find all combinations of possible 12-layer hits for tracks
     trackCandidates = TrackCandidatesFinder.listTrackCandidates(inputAUXData, extrapolatedGlobalSSIDs, DFGlobalSSIDs)
 
-    print("")
     print("Track candidates in the form [([track candidates for 8L input], track sector ID), ([track candidates], sector ID)...], where [track candidates] = [[16 hit coords], [16 hit coords]...], and layer 0 is the first hit coords")
     for event in trackCandidates:
         print(event)
@@ -137,4 +136,4 @@ if __name__ == "__main__":
         print("Processing an event")
         print("")
         DFHits = process_one_event(list(inputAUXData), list(inputDFData))
-        raw_input("Press Enter to continue...")
+        input("Press Enter to continue...")
