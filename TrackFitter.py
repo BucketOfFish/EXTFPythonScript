@@ -14,10 +14,10 @@ def fitTracks(trackCandidates, TFConstants):
         candidateSet = trackInfo[0]
         sectorID = trackInfo[1]
 
-        print "Fitting track candidates in sector", sectorID # CHECKPOINT
+        print("Fitting track candidates in sector", sectorID) # CHECKPOINT
 
         if sectorID not in TFConstants.keys():
-            print "Track fitter constants not found for sector ID - fit terminated", sectorID
+            print("Track fitter constants not found for sector ID - fit terminated", sectorID)
             lostSectorIDs.append(sectorID)
             # bestTracks.append([])
             continue
@@ -98,31 +98,31 @@ def fitTracks(trackCandidates, TFConstants):
         bestTrack = None
 
         if nLayers < 11: # not enough layers
-            print "Not enough layers - fit terminated" # CHECKPOINT
+            print("Not enough layers - fit terminated") # CHECKPOINT
             continue
         else:
-            # print "Fitting..." # CHECKPOINT
+            # print("Fitting...") # CHECKPOINT
             for trackCandidate in candidateSet:
                 TF_x = np.array(trackCandidate)
                 if nLayers < 12: # missing layers
-                    # print "TF_x", TF_x, "missing indices", missingIndices # CHECKPOINT
-                    # print "TF_S", TF_S # CHECKPOINT
+                    # print("TF_x", TF_x, "missing indices", missingIndices) # CHECKPOINT
+                    # print("TF_S", TF_S) # CHECKPOINT
                     missingTF_S = TF_S[:, missingIndices]
                     measuredTF_S = TF_S[:, measuredIndices]
                     measuredTF_x = TF_x[measuredIndices]
                     TF_C = missingTF_S.transpose().dot(missingTF_S)
-                    # print "TF_C", TF_C # CHECKPOINT
+                    # print("TF_C", TF_C) # CHECKPOINT
                     TF_t = - missingTF_S.transpose().dot(TF_h).transpose() - missingTF_S.transpose().dot(measuredTF_S.dot(measuredTF_x))
-                    # print "TF_t", TF_t # CHECKPOINT
+                    # print("TF_t", TF_t) # CHECKPOINT
                     missingTF_x = np.linalg.inv(TF_C).dot(TF_t.transpose())
-                    # print "invC", np.linalg.inv(TF_C) # CHECKPOINT
-                    # print "missingTF_x", missingTF_x # CHECKPOINT
+                    # print("invC", np.linalg.inv(TF_C)) # CHECKPOINT
+                    # print("missingTF_x", missingTF_x) # CHECKPOINT
                     for index, xVal in enumerate(missingTF_x):
                         if isinstance(xVal, list):
                             TF_x[missingIndices[index]] = xVal[0]
                         else:
                             TF_x[missingIndices[index]] = -xVal
-                    # print "final TF_x", TF_x # CHECKPOINT
+                    # print("final TF_x", TF_x) # CHECKPOINT
                 # a = TF_c.dot(np.array(TF_x)[np.newaxis].transpose()) # CHECKPOINT
                 # print(a) # CHECKPOINT
                 # print(TF_q) # CHECKPOINT
@@ -130,15 +130,15 @@ def fitTracks(trackCandidates, TFConstants):
                 TF_p = TF_c.dot(np.array(TF_x)[np.newaxis].transpose()).flatten() + TF_q # so much work just to transpose a vector
                 fitQualityEstimator = pow(np.linalg.norm(TF_S.dot(TF_x) + TF_h), 2)
                 if bestFitQualityEstimator == -1 or fitQualityEstimator < bestFitQualityEstimator:
-                    # print "Found better fit!" # CHECKPOINT
+                    # print("Found better fit!") # CHECKPOINT
                     bestFitQualityEstimator = fitQualityEstimator
                     bestTrackParameters = np.ndarray.tolist(TF_p)
                     bestTrack = trackCandidate
 
         if bestFitQualityEstimator > 40: # not good enough - do recovery fits
             # not very elegant code - basically just copy-pasted the above - should clean up (but probably won't)
-            # print "Fitting recovery tracks..." # CHECKPOINT
-            # print TF_S # CHECKPOINT
+            # print("Fitting recovery tracks...") # CHECKPOINT
+            # print(TF_S) # CHECKPOINT
             moreTrackCandidates = []
             for trackCandidate in candidateSet:
                 for dropLayers in [[0, 1], [8], [10], [14]]: # drop each of these separately (pixel layer 0, SCT layers 5, 7, 11)
@@ -158,45 +158,45 @@ def fitTracks(trackCandidates, TFConstants):
                     continue
                 else:
                     if nLayers < 12: # missing layers
-                        # print "TF_x", TF_x, "missing indices", missingIndices # CHECKPOINT
-                        # print "TF_S", TF_S # CHECKPOINT
+                        # print("TF_x", TF_x, "missing indices", missingIndices) # CHECKPOINT
+                        # print("TF_S", TF_S) # CHECKPOINT
                         missingTF_S = TF_S[:, missingIndices]
                         measuredTF_S = TF_S[:, measuredIndices]
                         measuredTF_x = TF_x[measuredIndices]
                         TF_C = missingTF_S.transpose().dot(missingTF_S)
-                        # print "TF_C", TF_C # CHECKPOINT
-                        # print "Missing TF_S", missingTF_S.transpose()
-                        # print "TF_h", TF_h
-                        # print "Measured TF_S", measuredTF_S
-                        # print "Measured TF_x", measuredTF_x
+                        # print("TF_C", TF_C) # CHECKPOINT
+                        # print("Missing TF_S", missingTF_S.transpose())
+                        # print("TF_h", TF_h)
+                        # print("Measured TF_S", measuredTF_S)
+                        # print("Measured TF_x", measuredTF_x)
                         TF_t = - missingTF_S.transpose().dot(TF_h).transpose() - missingTF_S.transpose().dot(measuredTF_S.dot(measuredTF_x))
-                        # print "TF_t", TF_t # CHECKPOINT
+                        # print("TF_t", TF_t) # CHECKPOINT
                         missingTF_x = np.linalg.inv(TF_C).dot(TF_t.transpose())
-                        # print "invC", np.linalg.inv(TF_C) # CHECKPOINT
-                        # print "missingTF_x", missingTF_x # CHECKPOINT
+                        # print("invC", np.linalg.inv(TF_C)) # CHECKPOINT
+                        # print("missingTF_x", missingTF_x) # CHECKPOINT
                         for index, xVal in enumerate(missingTF_x):
                             if isinstance(xVal, list):
                                 TF_x[missingIndices[index]] = xVal[0]
                             else:
                                 TF_x[missingIndices[index]] = -xVal
-                        # print "final TF_x", TF_x # CHECKPOINT
+                        # print("final TF_x", TF_x) # CHECKPOINT
                     # a = TF_c.dot(np.array(TF_x)[np.newaxis].transpose()) # CHECKPOINT
                     # print(a) # CHECKPOINT
                     # print(TF_q) # CHECKPOINT
                     # print(a.flatten() + TF_q) # CHECKPOINT
                     TF_p = TF_c.dot(np.array(TF_x)[np.newaxis].transpose()).flatten() + TF_q # so much work just to transpose a vector
                     fitQualityEstimator = pow(np.linalg.norm(TF_S.dot(TF_x) + TF_h), 2)
-                    # print "Recovery track of", [round(param, 3) for param in TF_x], "with parameters", [round(param, 3) for param in np.ndarray.tolist(TF_p)], "and a chi2 value of", fitQualityEstimator
+                    # print("Recovery track of", [round(param, 3) for param in TF_x], "with parameters", [round(param, 3) for param in np.ndarray.tolist(TF_p)], "and a chi2 value of", fitQualityEstimator)
                     if bestFitQualityEstimator == -1 or fitQualityEstimator < bestFitQualityEstimator:
-                        # print "Found better fit!" # CHECKPOINT
+                        # print("Found better fit!") # CHECKPOINT
                         bestFitQualityEstimator = fitQualityEstimator
                         bestTrackParameters = np.ndarray.tolist(TF_p)
                         bestTrack = trackCandidate
 
-        print "Best track was", bestTrack
-        print "Best track parameters were", [round(param, 3) for param in bestTrackParameters], "with a chi2 value of", bestFitQualityEstimator
+        print("Best track was", bestTrack)
+        print("Best track parameters were", [round(param, 3) for param in bestTrackParameters], "with a chi2 value of", bestFitQualityEstimator)
         bestTracks.append(bestTrackParameters)
         fitQualityEstimators.append(bestFitQualityEstimator)
 
-    # print list(set(lostSectorIDs))
+    # print(list(set(lostSectorIDs)))
     return zip(fitQualityEstimators, bestTracks)

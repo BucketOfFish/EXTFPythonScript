@@ -4,21 +4,21 @@ from math import floor
 # for every track, compute the extrapolated global SSIDs (expanded to one module on any side)
 # returns a list of lists, such as [[track 1 extr.], [track 2 extr.]...]
 # for each track, the list is composed of (global SSID, layer), such as [(2412, 0), (2462, 0)... (2111, 7)...]
-def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictionary, tower):
+def getExtrapolatedGlobalSSIDs(extrapolatorConstants, AUXTrackCoordinates, localModuleIDDictionary, tower):
 
     # returned values
     globalSSIDs = []
 
-    for hitCoordinateValues in hitCoordinates:
+    for hitCoordinateValues in AUXTrackCoordinates:
 
         sectorID = (hitCoordinateValues[0], 0) # we're only considering connection 0 for now
         coordinates = np.array(hitCoordinateValues[1])
 
-        if sectorID in matrixValues: # if we have matrix, vector, etc. info stored for this sector ID
+        if sectorID in extrapolatorConstants: # if we have matrix, vector, etc. info stored for this sector ID
 
-            vector = np.array(matrixValues[sectorID][0]) # vector and matrix data (60 constants)
-            matrix = np.array(matrixValues[sectorID][1])
-            globalModuleIDs = np.array(matrixValues[sectorID][2]) # global module IDs for SCT and IBL layer hits
+            vector = np.array(extrapolatorConstants[sectorID][0]) # vector and matrix data (60 constants)
+            matrix = np.array(extrapolatorConstants[sectorID][1])
+            globalModuleIDs = np.array(extrapolatorConstants[sectorID][2]) # global module IDs for SCT and IBL layer hits
 
             extrapolatedCoordinates = vector + matrix.dot(coordinates) # perform matrix extrapolation - this gives [IBL_phi IBL_eta SCT SCT SCT]
             localSSIDCoordinates = extrapolatedCoordinates / 16.0 # SCT is scaled by 1/16
@@ -160,30 +160,32 @@ def getExtrapolatedGlobalSSIDs(matrixValues, hitCoordinates, localModuleIDDictio
                     localModuleIDs.append(localModuleIDDictionary[key])
                 else:
                     localModuleIDs.append(0)
-                    print "WARNING:", key, "not in local/global module ID dictionary"
+                    print("WARNING:", key, "not in local/global module ID dictionary")
             addLocalModuleID((tower, 0, globalModuleIDs[0]))
             addLocalModuleID((tower, 5, globalModuleIDs[1]))
             addLocalModuleID((tower, 7, globalModuleIDs[2]))
             addLocalModuleID((tower, 11, globalModuleIDs[3]))
 
             newLayers = [0] * nSSIDsInGroup[0] + [5] * nSSIDsInGroup[1] + [7] * nSSIDsInGroup[2] + [11] * nSSIDsInGroup[3] # local module IDs are not unique across layers, so we need to keep this info
-            localModuleIDs = [localModuleIDs[0]] * nSSIDsInGroup[0] + [localModuleIDs[1]] * nSSIDsInGroup[1] + [localModuleIDs[2]] * nSSIDsInGroup[2] + [localModuleIDs[3]] * nSSIDsInGroup[3]
+            expandedLocalModuleIDs = [localModuleIDs[0]] * nSSIDsInGroup[0] + [localModuleIDs[1]] * nSSIDsInGroup[1] + [localModuleIDs[2]] * nSSIDsInGroup[2] + [localModuleIDs[3]] * nSSIDsInGroup[3]
 
-            expandedGlobalSSIDs = np.array(localModuleIDs) * 96 + np.array(expandedLocalSSIDs) # SCT
+            expandedGlobalSSIDs = np.array(expandedLocalModuleIDs) * 96 + np.array(expandedLocalSSIDs) # SCT
             for i in range(nSSIDsInGroup[0]):
-                expandedGlobalSSIDs[i] = localModuleIDs[i]  * 420 + expandedLocalSSIDs[i] # IBL
+                expandedGlobalSSIDs[i] = expandedLocalModuleIDs[i]  * 420 + expandedLocalSSIDs[i] # IBL
 
             globalSSIDs.append(zip(list(expandedGlobalSSIDs), newLayers))
 
-            # print "Track in sector ID", sectorID, "has extrapolated coordinates:", extrapolatedCoordinates
-            # print "Track in sector ID", sectorID, "has extrapolated local SSIDs:", expandedLocalSSIDs
-            # print "Track in sector ID", sectorID, "has global module IDs:", globalModuleIDs
-            # print "Track in sector ID", sectorID, "has local module IDs:", localModuleIDs
-            # print "Track in sector ID", sectorID, "has expanded global SSIDs: ", " ".join([hex(i) for i in expandedGlobalSSIDs])
-            # print "Track in sector ID", sectorID, "has expanded global SSIDs:", expandedGlobalSSIDs
+            print("Track in sector ID", sectorID, "has coordinates:", hitCoordinateValues[1])
+            print("\tGlobal module IDs after extrapolation:", globalModuleIDs)
+            print("\tConverted to local module IDs:", localModuleIDs)
+            print("\tTrack has extrapolated coordinates:", extrapolatedCoordinates)
+            print("\tThese coordinates are within local SSIDs:", localSSIDCoordinates)
+            print("\tIncluding neighboring local SSIDs:", expandedLocalSSIDs)
+            print("\tCorresponding to global SSIDs:", expandedGlobalSSIDs)
 
         else:
-            print "Sector ID", sectorID, "is not in matrix data."
+            print("Sector ID", sectorID, "is not in matrix data.")
             globalSSIDs.append([])
 
+    print("")
     return globalSSIDs
