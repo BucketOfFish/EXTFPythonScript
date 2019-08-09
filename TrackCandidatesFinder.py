@@ -14,7 +14,7 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
     for trackExtrapolatedSSIDs in AUXExtrapolatedGlobalSSIDs:
         matchedCoordinates = []
         for (SSID, layer) in trackExtrapolatedSSIDs:
-        # check if extrapolated hits are among DF hits
+            # check if extrapolated hits are among DF hits
             for index, (DFSSID, _) in enumerate(DFSSIDsToMatch):
                 if SSID == DFSSID:
                     matchedDFInfo = DFGlobalSSIDs[index] # (SSID, layer, [coordinates])

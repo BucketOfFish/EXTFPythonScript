@@ -58,4 +58,4 @@ def getDFGlobalSSIDs(DFCoordinates, localModuleIDDictionary, tower):
             allCoordinates.append(coordinates)
             # print("Global SSID:", globalSSID)
 
-    return zip(globalSSIDs, layers, allCoordinates) # global SSID is apparently not unique across different SCT layers
+    return list(zip(globalSSIDs, layers, allCoordinates)) # global SSID is apparently not unique across different SCT layers
