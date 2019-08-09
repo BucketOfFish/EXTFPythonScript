@@ -17,8 +17,7 @@ import TrackFitter
 # Open files, read lines, convert to binary, then parse
 ####################################################################################################
 
-# execfile("Options/Stream32_Tower22_1Event.py")
-exec(open("Options/Stream32_Tower22_1Event.py").read())
+exec(open("Options/DefaultOptions.py").read())
 
 # extrapolation constants
 with open(extrapolatorConstants_FileName) as extrapolatorConstantsFile:
@@ -95,13 +94,9 @@ def process_one_event(inputAUXData, inputDFData):
     print(b)
     # print(sorted(set(b)))
     print("")
-    print("SSID overlap")
-    c = set.intersection(set(functools.reduce(lambda x, y: x+y, a)), set(b))
-    print(c)
-    print("")
     print("SSID matches for each track")
     for track in a:
-        print(list(set.intersection(set(track), c)))
+        print(list(set.intersection(set(track), b)))
 
     ####################
     # Track Candidates #

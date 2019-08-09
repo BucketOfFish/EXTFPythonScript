@@ -1,11 +1,13 @@
-inputAUXData_FileName = 'Data/Jon4Track/test_vector_aux_ftksim_1.dat' # AUX input data
-shiftBitAUX = True # move the last hex character of each line to the front (a formatting issue)
-inputDFData_FileName = 'Data/Jon4Track/test_vector_df_ftksim_1.dat' # DF data
-shiftBitDF = True # move the last hex character of each line to the front (a formatting issue)
+# up-to-date inputs as of 2019-08-09
+inputAUXData_FileName = 'Data/jon_nov29_aux.txt' # AUX input data
+shiftBitAUX = False # move the last hex character of each line to the front (a formatting issue)
+inputDFData_FileName = 'Data/jon_nov29_df.txt' # DF data
+shiftBitDF = False # move the last hex character of each line to the front (a formatting issue)
 
+# both Libl3D and LiblHW tested compatible as of 2019-08-09 - not sure which one to use
 moduleIDDictionary_FileName = 'Data/raw_12Libl3D.moduleidmap' # maps between local module ID, tower, layer, and gloabl module ID
 
-# extrapolatorConstants_FileName = 'Data/EXPConstants_tower22.txt' # matrix and vector constants for extrapolator
+# up-to-date constants as of 2019-08-09
 extrapolatorConstants_FileName = 'Data/EXPConstants_reg22_IBL_hw_scale_10.2.txt' # matrix and vector constants for extrapolator
 TFConstants_FileName = 'Data/TFConstants_reg22_IBL_hw_scale_10.2.txt' # matrix and vector constants for track fitter
 

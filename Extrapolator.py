@@ -70,13 +70,13 @@ def getExtrapolatedGlobalSSIDs(extrapolatorConstants, AUXTrackCoordinates, local
 
             globalSSIDs.append(zip(list(expandedGlobalSSIDs), newLayers))
 
-            print("Track in sector ID", sectorID, "has coordinates:", hitCoordinateValues[1])
-            print("\tGlobal module IDs after extrapolation:", globalModuleIDs)
-            print("\tConverted to local module IDs:", localModuleIDs)
-            print("\tTrack has extrapolated coordinates:", extrapolatedCoordinates)
-            print("\tThese coordinates are within local SSIDs:", localSSIDCoordinates)
-            print("\tIncluding neighboring local SSIDs:", expandedLocalSSIDs)
-            print("\tCorresponding to global SSIDs:", expandedGlobalSSIDs)
+            # print("Track in sector ID", sectorID, "has coordinates:", hitCoordinateValues[1])
+            # print("\tGlobal module IDs after extrapolation:", globalModuleIDs)
+            # print("\tConverted to local module IDs:", localModuleIDs)
+            # print("\tTrack has extrapolated coordinates:", extrapolatedCoordinates)
+            # print("\tThese coordinates are within local SSIDs:", localSSIDCoordinates)
+            # print("\tIncluding neighboring local SSIDs:", expandedLocalSSIDs)
+            # print("\tCorresponding to global SSIDs:", expandedGlobalSSIDs)
 
         else:
             print("Sector ID", sectorID, "is not in matrix data.")
