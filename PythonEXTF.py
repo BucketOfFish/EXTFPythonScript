@@ -121,7 +121,7 @@ if __name__ == "__main__":
     with open(inputAUXData_FileName) as inputAUXDataFile:
         inputAUXData_Lines = [line.strip('\n') for line in inputAUXDataFile.readlines()]
     if shiftBitAUX:
-        inputAUXData_Lines = [U.hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputAUXData_Lines]
+        inputAUXData_Lines = [U.hexToBin(U.shiftBackToFront(hexNumber)) for hexNumber in inputAUXData_Lines]
     else:
         inputAUXData_Lines = [U.hexToBin(hexNumber) for hexNumber in inputAUXData_Lines]
     AUXDataEvents = list(AUXDataExtraction.extractAUXData(inputAUXData_Lines))  # 8 layer hit coordinates
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     with open(inputDFData_FileName) as inputDFDataFile:
         inputDFData_Lines = [line.strip('\n') for line in inputDFDataFile.readlines()]
     if shiftBitDF:
-        inputDFData_Lines = [U.hexToBin(shiftBackToFront(hexNumber)) for hexNumber in inputDFData_Lines]
+        inputDFData_Lines = [U.hexToBin(U.shiftBackToFront(hexNumber)) for hexNumber in inputDFData_Lines]
     else:
         inputDFData_Lines = [U.hexToBin(hexNumber) for hexNumber in inputDFData_Lines]
     DFDataEvents = list(DFDataExtraction.extractDFData(inputDFData_Lines))
