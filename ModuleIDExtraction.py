@@ -1,15 +1,12 @@
-import numpy as np
-from Utilities import *
-
-# given columns containing tower, layer, global module ID, and local module ID, create a dictionary
-# return in form of dictionary where (tower, layer, global module ID) is the key and local module ID is the value
 def extractModuleIDDictionary(moduleIDDictionaryData):
+    '''Given columns containing tower, layer, global module ID, and local module ID, create a dictionary and
+    return in form where (tower, layer, global module ID) is the key and local module ID is the value.'''
 
     # extracted values
     localModuleIDs = []
     localModuleIDInfo = []
 
-    # # read through each line of the file
+    # read through each line of the file
     for line in moduleIDDictionaryData:
 
         values = line.split("\t")
@@ -20,4 +17,4 @@ def extractModuleIDDictionary(moduleIDDictionaryData):
         localModuleIDs.append(localModuleID)
         localModuleIDInfo.append((tower, layer, globalModuleID))
 
-    return dict(zip(localModuleIDInfo, localModuleIDs)) # dictionary where module ID info tuples are keys, for getting the module local ID
+    return dict(zip(localModuleIDInfo, localModuleIDs))

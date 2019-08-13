@@ -1,9 +1,9 @@
-import numpy as np
-from Utilities import *
+import Utilities as U
 
-# given DF data lines of 32 bits each, this function extracts DF hit parameters
-# returns in form of list with (global module ID, hit coordinates)
+
 def extractDFData(hitCoordinatesData):
+    '''Given DF data lines of 32 bits each, this function extracts DF hit coordinates and
+    returns in the form of a list with (global module ID, hit coordinates).'''
 
     # extracted values
     globalModuleIDs = []
@@ -24,40 +24,40 @@ def extractDFData(hitCoordinatesData):
             if headerCount == 7:
                 readingDataWords = True
 
-        if regSlice(line, 31, 16) == '1110000011011010': # e0da
+        if U.regSlice(line, 31, 16) == '1110000011011010':  # e0da
             readingDataWords = False
-            yield zip(globalModuleIDs, coordinates) # return one event
+            yield zip(globalModuleIDs, coordinates)  # return one event
             globalModuleIDs = []
             coordinates = []
 
-        if regSlice(line, 31, 16) == '1011000011110000': # b0f0
+        if U.regSlice(line, 31, 16) == '1011000011110000':  # b0f0
             headerCount = 0
 
-        if regSlice(line, 31, 16) == '1110000011110000': # e0f0
+        if U.regSlice(line, 31, 16) == '1110000011110000':  # e0f0
             headerCount = -1
 
         if readingDataWords:
 
-            newModule = (regSlice(line, 31, 31) == '1')
+            newModule = (U.regSlice(line, 31, 31) == '1')
 
-            if newModule: # module info
-                if regSlice(line, 15, 15) == '0': # IBL hit
+            if newModule:  # module info
+                if U.regSlice(line, 15, 15) == '0':  # IBL hit
                     readingIBLHit = True
-                    currentModuleID = binToInt(regSlice(line, 10, 0))
-                else: # SCT hit
+                    currentModuleID = U.binToInt(U.regSlice(line, 10, 0))
+                else:  # SCT hit
                     readingIBLHit = False
-                    currentModuleID = binToInt(regSlice(line, 12, 0))
+                    currentModuleID = U.binToInt(U.regSlice(line, 12, 0))
 
-            else: # hits info
+            else:  # hits info
                 if readingIBLHit:
-                    columnCoord = binToInt(regSlice(line, 27, 16))
-                    rowCoord = binToInt(regSlice(line, 11, 0))
+                    columnCoord = U.binToInt(U.regSlice(line, 27, 16))
+                    rowCoord = U.binToInt(U.regSlice(line, 11, 0))
                     globalModuleIDs.append(currentModuleID)
                     coordinates.append([rowCoord, columnCoord])
                 else:
-                    hit1 = binToInt(regSlice(line, 10, 0))
-                    hit2 = binToInt(regSlice(line, 26, 16))
-                    if regSlice(line, 15, 15) == '1': # second hit is empty
+                    hit1 = U.binToInt(U.regSlice(line, 10, 0))
+                    hit2 = U.binToInt(U.regSlice(line, 26, 16))
+                    if U.regSlice(line, 15, 15) == '1':  # second hit is empty
                         globalModuleIDs.append(currentModuleID)
                         coordinates.append([hit1])
                     else:
