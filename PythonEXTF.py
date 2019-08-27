@@ -97,7 +97,7 @@ def process_one_event(inputAUXData, inputDFData, extrapolatorConstants, moduleID
 
 if __name__ == "__main__":
 
-    exec(open("Options/DefaultOptions.py").read())
+    exec(open("Options/Testvector_20190826.py").read())
     print("Loading constants\n")
 
     # extrapolation constants
