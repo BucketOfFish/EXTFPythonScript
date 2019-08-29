@@ -1,0 +1,6 @@
+inputAUXA.txt and inputAUXB.txt are AUX inputs to the SSB.
+output_ssb_tower22.dat is the DF input to the SSB.
+FTkSim shows 2 tracks from AUXA and no tracks from AUXB.
+
+output.txt is FTkSim's SSB output.
+ssb_spybuffer_dump_main_FPGA0.dat is the SSB SpyBuffer output.
