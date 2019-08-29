@@ -15,8 +15,8 @@
 # Jonathan
 
 # up-to-date inputs as of 2019-08-09
-# inputAUXData_FileName = 'Data/Testvector_20190826/inputAUXA.txt' # AUX input data
-inputAUXData_FileName = 'Data/Testvector_20190826/inputAUXB.txt' # AUX input data
+inputAUXData_FileName = 'Data/Testvector_20190826/inputAUXA.txt' # AUX input data
+# inputAUXData_FileName = 'Data/Testvector_20190826/inputAUXB.txt' # AUX input data
 shiftBitAUX = False # move the last hex character of each line to the front (a formatting issue)
 inputDFData_FileName = 'Data/Testvector_20190826/output_ssb_tower22.dat' # DF data
 shiftBitDF = False # move the last hex character of each line to the front (a formatting issue)

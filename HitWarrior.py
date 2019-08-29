@@ -3,7 +3,7 @@ import numpy as np
 
 def overlapRemoval(tracks):
     '''Given a set of tracks, we cluster them into matching tracks, and return the set of best tracks from each
-    cluster.'''
+    cluster in the form [[[best track coordinates], [fit params], chi2]...].'''
 
     def matching_track_clusters(tracks):
         '''Given an array of tracks, return a list of matching (sharing 6 or more hits) track indices.

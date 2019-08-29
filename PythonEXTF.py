@@ -91,7 +91,7 @@ def process_one_event(inputAUXData, inputDFData, extrapolatorConstants, moduleID
 
     print("Removing overlapping tracks leaves:")
     for track in uniqueTracks:
-        print(track[0])
+        print(list(track))
     print("")
 
 

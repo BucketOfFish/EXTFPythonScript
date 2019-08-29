@@ -3,4 +3,5 @@ output_ssb_tower22.dat is the DF input to the SSB.
 FTkSim shows 2 tracks from AUXA and no tracks from AUXB.
 
 output.txt is FTkSim's SSB output.
+output_merged.txt is output.txt, but with each pair of lines merged.
 ssb_spybuffer_dump_main_FPGA0.dat is the SSB SpyBuffer output.
