@@ -31,12 +31,9 @@ def binToHex(binary):
     return hex(int(binary, 2))
 def binToFloat32(binary):
     # IEEE-754, but with the first 5 bits removed for some reason when reading TF consts - just following what Markus has in the documentation spreadsheet
-    integer = binToInt(binary)
-    return unpack("f", pack("I", integer))[0]
+    return unpack("f", pack("I", binToInt(binary)))[0]
 def binToFloat16(binary):
-    sys.exit("The binToFloat16 funciton in Utilities is incorrect")
-    # print np.array(list(binary), dtype=int)
-    # return np.array(binary).astype(np.float16)
+    return np.frombuffer(pack("H", binToInt(binary)), dtype=np.float16)[0]
 
 # move the first bit of a hex string to the back, or vice versa
 def shiftFrontToBack(hexNumber):
