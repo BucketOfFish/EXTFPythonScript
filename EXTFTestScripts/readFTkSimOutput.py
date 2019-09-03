@@ -92,6 +92,10 @@ for lineNumber, line in enumerate(inputFileLines, start=1):
         elif trackLine >= 21 and trackLine <= 28:
             currentTrackInfo[-1].append(U.binToInt(U.regSlice(U.hexToBin(line), 10, 0)))  # hit coordinate
             if trackLine == 28:
+                currentTrackInfo[-1][0], currentTrackInfo[-1][1] = currentTrackInfo[-1][1], currentTrackInfo[-1][0]  # swap coordinates to match EXTF emulator format
+                currentTrackInfo[-1][2], currentTrackInfo[-1][3] = currentTrackInfo[-1][3], currentTrackInfo[-1][2]  # swap coordinates to match EXTF emulator format
+                currentTrackInfo[-1][4], currentTrackInfo[-1][5] = currentTrackInfo[-1][5], currentTrackInfo[-1][4]  # swap coordinates to match EXTF emulator format
+                currentTrackInfo[-1][6], currentTrackInfo[-1][7] = currentTrackInfo[-1][7], currentTrackInfo[-1][6]  # swap coordinates to match EXTF emulator format
                 trackInfo.append(currentTrackInfo)
                 trackLine = 0
 
