@@ -33,12 +33,12 @@ for lineNumber, line in enumerate(inputFileLines, start=1):
             runNumber = line
         elif headerLine == 6:
             runNumber += line
-            runNumber = U.hexToInt(runNumber)
+            runNumber = U.binToInt(U.regSlice(U.hexToBin(runNumber), 30, 0))
         elif headerLine == 7:
             lvl1ID = line
         elif headerLine == 8:
             lvl1ID += line
-            lvl1ID = U.hexToInt(lvl1ID)
+            lvl1ID = U.binToInt(U.regSlice(U.hexToBin(lvl1ID), 23, 0))
         elif headerLine == 14:
             readingHeader = False
             readingTracks = True
@@ -57,34 +57,44 @@ for lineNumber, line in enumerate(inputFileLines, start=1):
         elif trackLine == 2:
             currentTrackInfo.append(U.hexToInt(line))  # sector number
         elif trackLine == 3:
-            currentTrackInfo.append(U.hexToInt(line))  # tower number
+            # currentTrackInfo.append(U.hexToInt(line))  # tower number
+            continue
         elif trackLine == 4:
-            currentTrackInfo.append(U.hexToBin(line))  # layer map
-            # continue
+            # currentTrackInfo.append(U.hexToBin(line))  # layer map
+            continue
         elif trackLine == 5:
             roadNumber = line
         elif trackLine == 6:
             roadNumber += line
-            currentTrackInfo.append(U.hexToInt(roadNumber))
+            # currentTrackInfo.append(U.hexToInt(roadNumber))
+            continue
         elif trackLine == 7:
-            currentTrackInfo.append(U.hexToFloat32(line))  # chi2
+            currentTrackInfo.append(U.hexToFloat16(line))  # chi2
         elif trackLine == 8:
-            currentTrackInfo.append(U.hexToFloat32(line))  # d0
+            currentTrackInfo.append([U.hexToFloat16(line)])  # d0
+            # continue
         elif trackLine == 9:
-            currentTrackInfo.append(U.hexToFloat32(line))  # z0
+            currentTrackInfo[-1].append(U.hexToFloat16(line))  # z0
+            # continue
         elif trackLine == 10:
-            currentTrackInfo.append(U.hexToFloat32(line))  # coth
+            currentTrackInfo[-1].append(U.hexToFloat16(line))  # coth
+            # continue
         elif trackLine == 11:
-            currentTrackInfo.append(U.hexToFloat32(line))  # phi0
+            currentTrackInfo[-1].append(U.hexToFloat16(line))  # phi0
+            # continue
         elif trackLine == 12:
-            currentTrackInfo.append(U.hexToFloat32(line))  # curv
-        elif trackLine >= 13:
+            currentTrackInfo[-1].append(U.hexToFloat16(line))  # curv
+            # continue
+        elif trackLine >= 13 and trackLine <= 20:
             if trackLine == 13:
                 currentTrackInfo.append([])
-            currentTrackInfo[-1].append(U.hexToInt(line))  # hit coordinate
+            currentTrackInfo[-1].append(U.binToInt(U.regSlice(U.hexToBin(line), 11, 0)))  # hit coordinate
+        elif trackLine >= 21 and trackLine <= 28:
+            currentTrackInfo[-1].append(U.binToInt(U.regSlice(U.hexToBin(line), 10, 0)))  # hit coordinate
             if trackLine == 28:
                 trackInfo.append(currentTrackInfo)
                 trackLine = 0
 
-print(trackInfo)
+for track in trackInfo:
+    print(track)
 import pdb; pdb.set_trace()  # NOQA

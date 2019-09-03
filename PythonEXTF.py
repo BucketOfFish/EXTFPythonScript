@@ -23,7 +23,7 @@ def process_one_event(inputAUXData, inputDFData, extrapolatorConstants, moduleID
 
     print("DF hits (global module ID, hit coordinates)")
     for hits in inputDFData:
-        print(hits, end=' ')
+        print(hits, end=' ')  # NOQA
     print("\n")
 
     #################
