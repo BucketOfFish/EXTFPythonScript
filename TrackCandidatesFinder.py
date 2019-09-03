@@ -51,6 +51,10 @@ def listTrackCandidates(AUXHits, AUXExtrapolatedGlobalSSIDs, DFGlobalSSIDs):
     # make lists of all candidates hits for each track
     trackCandidates = []
     for trackInfo in allSortedCoordinates:
+        # skip tracks with less than 11 layers
+        nLayers = sum([coordinate != [-1] and coordinate != [[-1, -1]] for coordinate in trackInfo.values()])
+        if nLayers < 11:
+            continue
         possibleTracks = [[]]
         for layer in range(12):
             currentPossibleTracks = list(possibleTracks)  # deep copy of list
