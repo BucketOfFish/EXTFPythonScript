@@ -14,6 +14,9 @@
 # Thanks,
 # Jonathan
 
+# Using constants and module ID map from the following config file: /eos/atlas/atlascerngroupdisk/det-ftk/tvlibrary/data18_pp_2017HighDF128/Tower_6_22_128_358333_lb70_ev140/config/sliceA_622_2018_config.py
+# This config file was used by FTkSim when generating the output I'm comparing against (in the Testvector_20190826 folder).
+
 # up-to-date inputs as of 2019-08-09
 inputAUXData_FileName = 'Data/Testvector_20190826/inputAUXA.txt' # AUX input data
 # inputAUXData_FileName = 'Data/Testvector_20190826/inputAUXB.txt' # AUX input data

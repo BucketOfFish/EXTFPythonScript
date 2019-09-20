@@ -93,7 +93,6 @@ def fitTracks(trackCandidates, TFConstants):
             chi2 = pow(np.linalg.norm(TF_S.dot(TF_x) + TF_h), 2)
             trackParameters = np.ndarray.tolist(TF_p)
             print("Fit track ", [round(param, 3) for param in TF_x], "with parameters", [round(param, 3) for param in trackParameters], "and a chi2 value of", chi2)
-            # pdb.set_trace()
             return trackParameters, chi2
 
         bestChi2 = -1
