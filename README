@@ -1,8 +1,0 @@
-Use python 3
-PythonEXTF.py is the entry point.
-On the first line of PythonEXTF.py, you have a line saying "execfile("<blah>.py")"
-In <blah>.py, update the constants files as needed.
-
-Run using "python PythonEXTF.py".
-
-Documentation available at https://indico.cern.ch/event/832607/contributions/3528717/attachments/1892768/3121781/2019-08-13_EXTF_Python_Emulation.pdf
